@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Firebase Playground</string>
+    <string name="signed_out">signed out</string>
+    <string name="no_user_signed_in">no user is signed in</string>
+</resources>
