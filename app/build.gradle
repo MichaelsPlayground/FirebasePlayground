@@ -45,4 +45,5 @@ dependencies {
     // For example, add the dependencies for Firebase Authentication
     implementation 'com.google.firebase:firebase-auth'
 
+
 }

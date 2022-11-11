@@ -44,7 +44,7 @@ public class SignInEmailPasswordActivity extends AppCompatActivity {
         Button signIn = findViewById(R.id.btnSignInEmailPasswordSignIn);
         Button signUp = findViewById(R.id.btnSignInEmailPasswordSignUp);
         Button signOut = findViewById(R.id.btnSignInEmailPasswordSignOut);
-
+        Button backToMain = findViewById(R.id.btnSignInEmailPasswordToMain);
 
         signIn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,6 +92,15 @@ public class SignInEmailPasswordActivity extends AppCompatActivity {
                 Log.d(TAG, "sign out the current user");
                 mAuth.signOut();
                 updateUI(null);
+            }
+        });
+
+        backToMain.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(SignInEmailPasswordActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
             }
         });
     }

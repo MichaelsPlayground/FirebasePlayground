@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, SignUpEmailPasswordActivity.class);
                 startActivity(intent);
+                finish();
             }
         });
 
@@ -51,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, SignInEmailPasswordActivity.class);
                 startActivity(intent);
+                finish();
             }
         });
 
@@ -99,7 +101,18 @@ public class MainActivity extends AppCompatActivity {
     private void updateUI(FirebaseUser user) {
         //hideProgressBar();
         if (user != null) {
-            String userData = String.format("Email: %s", user.getEmail());
+            String userData = String.format("Email: %s", user.getEmail())
+                    + String.format("\nemail address is verified: %s", user.isEmailVerified());
+            if (user.getDisplayName() != null) {
+                userData += String.format("\ndisplay name: %s", Objects.requireNonNull(user.getDisplayName()).toString());
+            } else {
+                userData += "\nno display name available";
+            }
+            if (user.getPhotoUrl() != null) {
+                userData += String.format("\n phto url: %s", Objects.requireNonNull(user.getPhotoUrl()).toString());
+            } else {
+                userData += "\nno photo url available";
+            }
             signedInUser.setText(userData);
             /*
             mBinding.status.setText(getString(R.string.emailpassword_status_fmt,

@@ -11,7 +11,7 @@ and the following services are running here:
 - sign in with email and password (email verification)
 - sign in using an Google account
 - sign in anonymously
-
+- sign out the existing user
 
 
 **Ressources used for this playground**
@@ -32,6 +32,7 @@ Start: https://firebase.google.com/docs/auth/android/start
 
 
 **Storage**:
+
 
 **code snippets that are used in the descriptions**: https://github.com/firebase/snippets-android
 

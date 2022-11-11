@@ -46,6 +46,7 @@ public class SignUpEmailPasswordActivity extends AppCompatActivity {
         Button signUp = findViewById(R.id.btnSignUpEmailPasswordSignUp);
         Button signIn = findViewById(R.id.btnSignUpEmailPasswordSignIn);
         Button signOut = findViewById(R.id.btnSignUpEmailPasswordSignOut);
+        Button backToMain = findViewById(R.id.btnSignUpEmailPasswordToMain);
 
         // create a new user in the database
         signUp.setOnClickListener(new View.OnClickListener() {
@@ -78,7 +79,6 @@ public class SignUpEmailPasswordActivity extends AppCompatActivity {
                                 //hideProgressBar();
                             }
                         });
-
             }
         });
 
@@ -103,6 +103,14 @@ public class SignUpEmailPasswordActivity extends AppCompatActivity {
             }
         });
 
+        backToMain.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(SignUpEmailPasswordActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
 
         // todo email validation
         // email validation
