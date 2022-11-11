@@ -79,11 +79,7 @@
         android:visibility="visible"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
-        android:text="sign in with an Google account"/>
-
-
-
+        android:layout_marginEnd="16dp"/>
 
     <Button
         android:id="@+id/btnMainSignOut"

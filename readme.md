@@ -23,9 +23,9 @@ Most ressources are from Google's Firebase developer site
 
 **Authentication**: 
 
-Start: https://firebase.google.com/docs/auth/android/start
+Sign in with email and password: https://firebase.google.com/docs/auth/android/start
 
-
+Sign in witha Google account: https://firebase.google.com/docs/auth/android/google-signin
 
 **Database**:
 
@@ -70,7 +70,9 @@ in build.gradle (app):
     // See https://firebase.google.com/docs/android/setup#available-libraries
     // For example, add the dependencies for Firebase Authentication
     implementation 'com.google.firebase:firebase-auth'
-    
+    // auth with Google account
+    // Also add the dependency for the Google Play services library and specify its version
+    implementation 'com.google.android.gms:play-services-auth:20.3.0'    
 }
 
 
