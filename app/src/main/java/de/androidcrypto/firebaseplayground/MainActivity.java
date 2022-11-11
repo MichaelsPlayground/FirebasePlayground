@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Button signInGoogle = findViewById(R.id.btnMainSignInGoogle);
+        com.google.android.gms.common.SignInButton signInGoogle = findViewById(R.id.btnMainSignInGoogle);
         signInGoogle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
