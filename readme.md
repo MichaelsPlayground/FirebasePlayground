@@ -18,18 +18,32 @@ and the following services are running here:
 
 Most ressources are from Google's Firebase developer site
 
-**General**: start with https://firebase.google.com/docs/android/setup
+**General**: 
+
+start with https://firebase.google.com/docs/android/setup
 
 
 **Authentication**: 
 
 Sign in with email and password: https://firebase.google.com/docs/auth/android/start
 
-Sign in witha Google account: https://firebase.google.com/docs/auth/android/google-signin
+Sign in with an Google account: https://firebase.google.com/docs/auth/android/google-signin
 
 **Database**:
 
+01 Firebase Realtime Database: https://firebase.google.com/docs/database
 
+02 Choose a Database: Cloud Firestore or Realtime Database: https://firebase.google.com/docs/database/rtdb-vs-firestore
+
+03 Connect your App to Firebase: https://firebase.google.com/docs/database/android/start
+
+04 Structure Your Database: https://firebase.google.com/docs/database/android/structure-data
+
+05 Read and Write Data on Android: https://firebase.google.com/docs/database/android/read-and-write
+
+06 Work with Lists of Data on Android: https://firebase.google.com/docs/database/android/lists-of-data
+
+07 Enabling Offline Capabilities on Android: https://firebase.google.com/docs/database/android/offline-capabilities
 
 **Storage**:
 
@@ -40,6 +54,9 @@ Sign in witha Google account: https://firebase.google.com/docs/auth/android/goog
 
 - Authentication: https://github.com/firebase/quickstart-android/tree/master/auth
 
+- Database: https://github.com/firebase/quickstart-android/tree/master/database
+
+- Storage: https://github.com/firebase/quickstart-android/tree/master/storage
 
 **dependencies**:
 
@@ -72,7 +89,10 @@ in build.gradle (app):
     implementation 'com.google.firebase:firebase-auth'
     // auth with Google account
     // Also add the dependency for the Google Play services library and specify its version
-    implementation 'com.google.android.gms:play-services-auth:20.3.0'    
+    implementation 'com.google.android.gms:play-services-auth:20.3.0' 
+    // Add the dependency for the Realtime Database library
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation 'com.google.firebase:firebase-database'       
 }
 
 

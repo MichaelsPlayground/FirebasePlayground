@@ -9,6 +9,7 @@ import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -25,11 +26,14 @@ public class SignUpEmailPasswordActivity extends AppCompatActivity {
     com.google.android.material.textfield.TextInputEditText connectionStatus, signedInUser, eMail, password;
     static final String TAG = "SignUpEmailPassword";
     private FirebaseAuth mAuth;
+    ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up_email_password);
+
+        progressBar = findViewById(R.id.pbSignUpEmailPassword);
 
         connectionStatus = findViewById(R.id.etSignUpEmailPasswordStatus);
         signedInUser = findViewById(R.id.etSignUpEmailPasswordSignedInUser);
@@ -58,6 +62,8 @@ public class SignUpEmailPasswordActivity extends AppCompatActivity {
                 String logString = String.format("SignUp with Email %s and password %s", emailData, passwordData);
                 Log.i(TAG, logString);
 
+                showProgressBar();
+
                 mAuth.createUserWithEmailAndPassword(emailData, passwordData)
                         .addOnCompleteListener(SignUpEmailPasswordActivity.this, new OnCompleteListener<AuthResult>() {
                             @Override
@@ -76,7 +82,7 @@ public class SignUpEmailPasswordActivity extends AppCompatActivity {
                                     updateUI(null);
                                 }
 
-                                //hideProgressBar();
+                                hideProgressBar();
                             }
                         });
             }
@@ -153,7 +159,7 @@ public class SignUpEmailPasswordActivity extends AppCompatActivity {
     }
 
     private void updateUI(FirebaseUser user) {
-        //hideProgressBar();
+        hideProgressBar();
         if (user != null) {
             String status = String.format("User UID: %s", user.getUid()) +
                     " is verified: " + user.isEmailVerified();
@@ -187,6 +193,18 @@ public class SignUpEmailPasswordActivity extends AppCompatActivity {
             mBinding.signedInButtons.setVisibility(View.GONE);
 
   */
+        }
+    }
+
+    public void showProgressBar() {
+        if (progressBar != null) {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public void hideProgressBar() {
+        if (progressBar != null) {
+            progressBar.setVisibility(View.INVISIBLE);
         }
     }
 }

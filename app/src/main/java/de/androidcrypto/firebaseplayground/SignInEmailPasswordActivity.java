@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -23,11 +24,14 @@ public class SignInEmailPasswordActivity extends AppCompatActivity {
     com.google.android.material.textfield.TextInputEditText connectionStatus, signedInUser, eMail, password;
     static final String TAG = "SignInEmailPassword";
     private FirebaseAuth mAuth;
+    ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in_email_password);
+
+        progressBar = findViewById(R.id.pbSignInEmailPassword);
 
         connectionStatus = findViewById(R.id.etSignInEmailPasswordStatus);
         signedInUser = findViewById(R.id.etSignInEmailPasswordSignedInUser);
@@ -52,8 +56,10 @@ public class SignInEmailPasswordActivity extends AppCompatActivity {
                 // todo validate input to avoid empty fields
                 String emailData = Objects.requireNonNull(eMail.getText()).toString();
                 String passwordData = Objects.requireNonNull(password.getText()).toString();
-                String logString = String.format("SignInp with Email %s and password %s", emailData, passwordData);
+                String logString = String.format("SignIn with Email %s and password %s", emailData, passwordData);
                 Log.i(TAG, logString);
+
+                showProgressBar();
 
                 mAuth.signInWithEmailAndPassword(emailData, passwordData)
                         .addOnCompleteListener(SignInEmailPasswordActivity.this, new OnCompleteListener<AuthResult>() {
@@ -71,6 +77,7 @@ public class SignInEmailPasswordActivity extends AppCompatActivity {
                                             Toast.LENGTH_SHORT).show();
                                     updateUI(null);
                                 }
+                                hideProgressBar();
                             }
                         });
             }
@@ -138,7 +145,7 @@ public class SignInEmailPasswordActivity extends AppCompatActivity {
     }
 
     private void updateUI(FirebaseUser user) {
-        //hideProgressBar();
+        hideProgressBar();
         if (user != null) {
             String status = String.format("User UID: %s", user.getUid()) +
                     " is verified: " + user.isEmailVerified();
@@ -172,6 +179,18 @@ public class SignInEmailPasswordActivity extends AppCompatActivity {
             mBinding.signedInButtons.setVisibility(View.GONE);
 
   */
+        }
+    }
+
+    public void showProgressBar() {
+        if (progressBar != null) {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public void hideProgressBar() {
+        if (progressBar != null) {
+            progressBar.setVisibility(View.INVISIBLE);
         }
     }
 }
