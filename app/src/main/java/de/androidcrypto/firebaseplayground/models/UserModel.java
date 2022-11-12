@@ -2,9 +2,9 @@ package de.androidcrypto.firebaseplayground.models;
 
 public class UserModel {
 
-    String profilePic = "R.drawable.user", userName, userMail, userId, userPassword = "null", recentMessage, about, token, publicKey;
+    String userPhotoUrl, userName, userMail, userId, userPassword = "null", recentMessage, about="null", token="null", userPublicKey;
     long  recentMsgTime;
-
+/*
     public UserModel(String profilePic, String userName, String userMail, String userId, String userPassword, String about) {
         this.profilePic = profilePic;
         this.userName = userName;
@@ -23,23 +23,23 @@ public class UserModel {
         this.userPassword = userPassword;
         this.about = about;
     }
-
+*/
     public UserModel() {
     }
-
+/*
     // for displaying in chats list and search list
     public UserModel(String userName, String userMail, String profilePic) {
         this.userName = userName;
         this.userMail = userMail;
         this.profilePic = profilePic;
     }
-
+*/
     // for secure messaging
-    public UserModel(String userName, String userMail, String profilePic, String publicKey) {
+    public UserModel(String userName, String userMail, String userPhotoUrl, String userPublicKey) {
         this.userName = userName;
         this.userMail = userMail;
-        this.profilePic = profilePic;
-        this.publicKey = publicKey;
+        this.userPhotoUrl = userPhotoUrl;
+        this.userPublicKey = userPublicKey;
     }
 
     public String getToken() {
@@ -66,12 +66,20 @@ public class UserModel {
         this.about = about;
     }
 
-    public String getProfilePic() {
-        return profilePic;
+    public String getUserPhotoUrl() {
+        return userPhotoUrl;
     }
 
-    public void setProfilePic(String profilePic) {
-        this.profilePic = profilePic;
+    public void setUserPhotoUrl(String userPhotoUrl) {
+        this.userPhotoUrl = userPhotoUrl;
+    }
+
+    public String getUserPublicKey() {
+        return userPublicKey;
+    }
+
+    public void setUserPublicKey(String userPublicKey) {
+        this.userPublicKey = userPublicKey;
     }
 
     public String getUserName() {
@@ -112,13 +120,5 @@ public class UserModel {
 
     public void setRecentMessage(String recentMessage) {
         this.recentMessage = recentMessage;
-    }
-
-    public String getPublicKey() {
-        return publicKey;
-    }
-
-    public void setPublicKey(String publicKey) {
-        this.publicKey = publicKey;
     }
 }

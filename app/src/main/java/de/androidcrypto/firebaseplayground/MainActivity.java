@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, SignUpEmailPasswordActivity.class);
                 startActivity(intent);
-                finish();
+                //finish();
             }
         });
 
@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, SignInEmailPasswordActivity.class);
                 startActivity(intent);
-                finish();
+                //finish();
             }
         });
 
@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, SignInGoogleActivity.class);
                 startActivity(intent);
-                finish();
+                //finish();
             }
         });
 
@@ -105,9 +105,11 @@ public class MainActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
                     updateUI(mAuth.getCurrentUser());
+                    /*
                     Toast.makeText(getApplicationContext(),
                             "Reload successful!",
                             Toast.LENGTH_SHORT).show();
+                     */
                 } else {
                     Log.e(TAG, "reload", task.getException());
                     Toast.makeText(getApplicationContext(),

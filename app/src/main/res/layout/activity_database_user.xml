@@ -84,6 +84,29 @@
                 android:textSize="16sp"
                 android:textStyle="normal" />
 
+            <Button
+                android:id="@+id/btnDatabaseUserLoad"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:text="load data" />
+
+            <TextView
+                android:id="@+id/tvDatabaseUserNoData"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:background="@color/red_300"
+                android:visibility="gone"
+                android:text="no data stored in database USERS, press SAVE DATA to store"
+                android:textAlignment="center"
+                android:textSize="16sp"
+                android:textStyle="normal" />
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/etDatabaseUserUserIdLayout"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -135,6 +158,37 @@
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etDatabaseUserUserEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:inputType="text"
+                    android:text=""
+                    android:textSize="16sp"
+                    android:visibility="visible"
+                    android:focusable="false"
+                    tools:ignore="KeyboardInaccessibleWidget" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/etDatabaseUserPhotoUrlLayout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:hint="User photo url"
+                android:visibility="visible"
+                app:boxCornerRadiusBottomEnd="5dp"
+                app:boxCornerRadiusBottomStart="5dp"
+                app:boxCornerRadiusTopEnd="5dp"
+                app:boxCornerRadiusTopStart="5dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etDatabaseUserPhotoUrl"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
@@ -201,10 +255,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
-                    android:inputType="textVisiblePassword"
+                    android:inputType="text"
                     android:text=""
                     android:textSize="16sp"
                     android:visibility="visible"
+
                     tools:ignore="KeyboardInaccessibleWidget" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -222,33 +277,6 @@
                 android:layout_height="2dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="8dp" />
-
-            <Button
-                android:id="@+id/btnDatabaseUserSignIn"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="16dp"
-                android:text="sign in with Email and password" />
-
-            <Button
-                android:id="@+id/btnDatabaseUserSignUp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="16dp"
-                android:text="create a new account" />
-
-            <Button
-                android:id="@+id/btnDatabaseUserSignOut"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="16dp"
-                android:text="sign out" />
 
             <Button
                 android:id="@+id/btnDatabaseUserToMain"
