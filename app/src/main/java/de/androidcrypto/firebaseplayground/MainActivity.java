@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "show the user profile");
                 Intent intent = new Intent(MainActivity.this, DatabaseUserActivity.class);
                 startActivity(intent);
-                finish();
+                //finish();
             }
         });
 

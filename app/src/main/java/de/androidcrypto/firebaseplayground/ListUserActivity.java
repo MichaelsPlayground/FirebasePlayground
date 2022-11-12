@@ -1,6 +1,7 @@
 package de.androidcrypto.firebaseplayground;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -8,6 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -19,12 +21,15 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import de.androidcrypto.firebaseplayground.models.UserModel;
@@ -38,7 +43,7 @@ public class ListUserActivity extends AppCompatActivity {
     static final String TAG = "ListUser";
     // get the data from auth
     private static String authUserId = "", authUserEmail, authDisplayName, authPhotoUrl;
-    ListView userList;
+    ListView userListView;
 
     private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
@@ -52,14 +57,7 @@ public class ListUserActivity extends AppCompatActivity {
         signedInUser = findViewById(R.id.etDatabaseUserSignedInUser);
         progressBar = findViewById(R.id.pbDatabaseUser);
 
-        userList = findViewById(R.id.lvListUser);
-
-        warningNoData = findViewById(R.id.tvDatabaseUserNoData);
-        userId = findViewById(R.id.etDatabaseUserUserId);
-        userEmail = findViewById(R.id.etDatabaseUserUserEmail);
-        userPhotoUrl = findViewById(R.id.etDatabaseUserPhotoUrl);
-        userPublicKey = findViewById(R.id.etDatabaseUserPublicKey);
-        userName = findViewById(R.id.etDatabaseUserUserName);
+        userListView = findViewById(R.id.lvListUser);
 
         // don't show the keyboard on startUp
         //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
@@ -77,118 +75,54 @@ public class ListUserActivity extends AppCompatActivity {
         listUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                showProgressBar();
                 DatabaseReference usersRef = mDatabase.child("users");
-
-                ValueEventListener eventListener = new ValueEventListener() {
+                List<String> arrayList = new ArrayList<>();
+                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(ListUserActivity.this, android.R.layout.simple_list_item_1, arrayList);
+                userListView.setAdapter(arrayAdapter);
+                usersRef.addChildEventListener(new ChildEventListener() {
                     @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
+                    public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String previousChildName) {
+                        final String email = Objects.requireNonNull(dataSnapshot.child("userMail").getValue()).toString();
+                        final String displayName = Objects.requireNonNull(dataSnapshot.child("userName").getValue()).toString();
+                        arrayList.add(email + " " + displayName);
+                        arrayAdapter.notifyDataSetChanged();
+                    }
 
-
-                        for (DataSnapshot ds : dataSnapshot.getChildren()) {
-
-                            String name = ds.child("name").getValue(String.class);
-
-                            Log.d("TAG", name);
-
-                            array.add(name);
-
-                        }
-                        ArrayAdapter<String> adapter = new ArrayAdapter(ListUserActivity.this, android.R.layout.simple_list_item_1, array);
-
-                        userList.setAdapter(adapter);
+                    @Override
+                    public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
 
                     }
 
                     @Override
-                    public void onCancelled(DatabaseError databaseError) {
+                    public void onChildRemoved(@NonNull DataSnapshot snapshot) {
 
                     }
-                };
-                usersRef.addListenerForSingleValueEvent(eventListener);
 
-            }
-        });
+                    @Override
+                    public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
 
+                    }
 
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
 
+                    }
+                });
+                hideProgressBar();
 
-        Button loadData = findViewById(R.id.btnDatabaseUserLoad);
-        Button savaData = findViewById(R.id.btnDatabaseUserSave);
-        Button backToMain = findViewById(R.id.btnDatabaseUserToMain);
-
-        loadData.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                warningNoData.setVisibility(View.GONE);
-                showProgressBar();
-                Log.i(TAG, "load user data from database for user id: " + authUserId);
-                if (!authUserId.equals("")) {
-                    mDatabase.child("users").child(authUserId).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DataSnapshot> task) {
-                            hideProgressBar();
-                            if (!task.isSuccessful()) {
-                                Log.e(TAG, "Error getting data", task.getException());
-                            } else {
-                                // check for a null value means no user data were saved before
-                                UserModel userModel = task.getResult().getValue(UserModel.class);
-                                Log.i(TAG, String.valueOf(userModel));
-                                if (userModel == null) {
-                                    Log.i(TAG, "userModel is null, show message");
-                                    warningNoData.setVisibility(View.VISIBLE);
-                                    // get data from user
-                                    userId.setText(authUserId);
-                                    userEmail.setText(authUserEmail);
-                                    userName.setText(usernameFromEmail(authUserEmail));
-                                    userPublicKey.setText("not in use");
-                                    userPhotoUrl.setText(authPhotoUrl);
-                                } else {
-                                    Log.i(TAG, "userModel email: " + userModel.getUserMail());
-                                    warningNoData.setVisibility(View.GONE);
-                                    // get data from user
-                                    userId.setText(authUserId);
-                                    userEmail.setText(userModel.getUserMail());
-                                    userName.setText(userModel.getUserName());
-                                    userPublicKey.setText(userModel.getUserPublicKey());
-                                    userPhotoUrl.setText(userModel.getUserPhotoUrl());
-                                }
-                            }
-                        }
-                    });
-                } else {
-                    Toast.makeText(getApplicationContext(),
-                            "sign in a user before loading",
-                            Toast.LENGTH_SHORT).show();
-                    hideProgressBar();
-                }
-            }
-        });
-
-        savaData.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showProgressBar();
-                Log.i(TAG, "save user data from database for user id: " + authUserId);
-                if (!authUserId.equals("")) {
-                    if (!Objects.requireNonNull(userId.getText()).toString().equals("")) {
-                        warningNoData.setVisibility(View.GONE);
-                        writeNewUser(authUserId, Objects.requireNonNull(userName.getText()).toString(),
-                                Objects.requireNonNull(userEmail.getText()).toString(),
-                                Objects.requireNonNull(userPhotoUrl.getText()).toString(),
-                                Objects.requireNonNull(userPublicKey.getText()).toString());
-                    } else {
+                userListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                         Toast.makeText(getApplicationContext(),
-                                "load user data before saving",
+                                "click on position " + position,
                                 Toast.LENGTH_SHORT).show();
                     }
-                } else {
-                    Toast.makeText(getApplicationContext(),
-                            "sign in a user before saving",
-                            Toast.LENGTH_SHORT).show();
-                }
-                hideProgressBar();
+                });
             }
         });
+
+        Button backToMain = findViewById(R.id.btnDatabaseUserToMain);
 
         backToMain.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -200,12 +134,13 @@ public class ListUserActivity extends AppCompatActivity {
         });
     }
 
+
     @Override
     public void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser != null){
+        if (currentUser != null) {
             reload();
         } else {
             signedInUser.setText("no user is signed in");
@@ -238,69 +173,11 @@ public class ListUserActivity extends AppCompatActivity {
         if (user != null) {
             authUserId = user.getUid();
             authUserEmail = user.getEmail();
-            if (user.getDisplayName() != null) {
-                authDisplayName = Objects.requireNonNull(user.getDisplayName()).toString();
-            } else {
-                authDisplayName = "";
-            }
-            if (user.getPhotoUrl() != null) {
-                authPhotoUrl = Objects.requireNonNull(user.getPhotoUrl()).toString();
-            } else {
-                authPhotoUrl = "";
-            }
-            String userData = String.format("Email: %s", authUserEmail)
-                    + String.format("\nemail address is verified: %s", user.isEmailVerified());
-            if (user.getDisplayName() != null) {
-                userData += String.format("\ndisplay name: %s", authDisplayName);
-            } else {
-                userData += "\nno display name available";
-            }
-
-            userData += "\nuser id: " + authUserId;
-            if (user.getPhotoUrl() != null) {
-                userData += String.format("\nphoto url: %s", Objects.requireNonNull(user.getPhotoUrl()).toString());
-            } else {
-                userData += "\nno photo url available";
-            }
+            String userData = String.format("Email: %s", authUserEmail);
             signedInUser.setText(userData);
-            /*
-            mBinding.status.setText(getString(R.string.emailpassword_status_fmt,
-                    user.getEmail(), user.isEmailVerified()));
-            mBinding.detail.setText(getString(R.string.firebase_status_fmt, user.getUid()));
-
-            mBinding.emailPasswordButtons.setVisibility(View.GONE);
-            mBinding.emailPasswordFields.setVisibility(View.GONE);
-            mBinding.signedInButtons.setVisibility(View.VISIBLE);
-
-
-             */
-            if (user.isEmailVerified()) {
-//                mBinding.verifyEmailButton.setVisibility(View.GONE);
-            } else {
-//                mBinding.verifyEmailButton.setVisibility(View.VISIBLE);
-            }
         } else {
             signedInUser.setText(null);
- /*
-            mBinding.detail.setText(null);
-
-            mBinding.emailPasswordButtons.setVisibility(View.VISIBLE);
-            mBinding.emailPasswordFields.setVisibility(View.VISIBLE);
-            mBinding.signedInButtons.setVisibility(View.GONE);
-
-  */
         }
-    }
-
-    // try to read the entry for the signed-in user in RealtimeDatabase
-    private void readUserDatabase(FirebaseUser user) {
-
-
-    }
-
-    public void writeNewUser(String userId, String name, String email, String photoUrl, String publicKey) {
-        UserModel user = new UserModel(name, email, photoUrl, publicKey);
-        mDatabase.child("users").child(userId).setValue(user);
     }
 
     public void showProgressBar() {
