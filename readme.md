@@ -105,3 +105,17 @@ package de.androidcrypto.firebaseplayground
 SHA1: 19:22:A4:D7:01:A8:3D:09:8F:04:93:E9:8E:21:92:2D:5A:5F:B0:54
 ```
 
+TextUtils:
+```plaintext
+In class TextUtils
+
+public static boolean isEmpty(@Nullable CharSequence str) {
+    if (str == null || str.length() == 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+checks if string length is zero and if string is null to avoid throwing 
+NullPointerException
+```
