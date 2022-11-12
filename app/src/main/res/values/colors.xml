@@ -10,7 +10,7 @@
     <color name="colorPrimary">#2196F3</color>
     <color name="colorStatusBar">#1E88E5</color>
     <color name="colorAccent">#8E24AA</color>
-    <color name="grey_300">#E0E0E0</color>
+    <color name="grey_300">#EEEEEE</color>
     <color name="blue_300">#B2E7FF</color>
     <color name="red_300">#FFB2B2</color>
 </resources>

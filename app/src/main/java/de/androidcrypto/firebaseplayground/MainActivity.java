@@ -85,6 +85,17 @@ public class MainActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        Button listUser = findViewById(R.id.btnMainListUser);
+        listUser.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "list user on database");
+                Intent intent = new Intent(MainActivity.this, ListUserActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
     }
 
     @Override
