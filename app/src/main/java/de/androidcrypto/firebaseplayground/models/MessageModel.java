@@ -1,5 +1,8 @@
 package de.androidcrypto.firebaseplayground.models;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class MessageModel {
 
     String message;
@@ -14,6 +17,14 @@ public class MessageModel {
         this.message = message;
         this.messageTime = messageTime;
         this.messageEncrypted = messageEncrypted;
+    }
+
+    public Map<String, Object> toMap() {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("message", message);
+        result.put("messageTime", messageTime);
+        result.put("messageEncrypted", messageEncrypted);
+        return result;
     }
 
     public String getMessage() {

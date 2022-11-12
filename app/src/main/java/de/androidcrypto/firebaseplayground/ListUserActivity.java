@@ -78,6 +78,7 @@ public class ListUserActivity extends AppCompatActivity {
                 showProgressBar();
                 DatabaseReference usersRef = mDatabase.child("users");
                 List<String> arrayList = new ArrayList<>();
+                List<String> uidList = new ArrayList<>();
                 ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(ListUserActivity.this, android.R.layout.simple_list_item_1, arrayList);
                 userListView.setAdapter(arrayAdapter);
                 usersRef.addChildEventListener(new ChildEventListener() {
@@ -85,8 +86,11 @@ public class ListUserActivity extends AppCompatActivity {
                     public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String previousChildName) {
                         final String email = Objects.requireNonNull(dataSnapshot.child("userMail").getValue()).toString();
                         final String displayName = Objects.requireNonNull(dataSnapshot.child("userName").getValue()).toString();
+                        //final String uid = dataSnapshot.child("uid").getKey().toString();
+                        final String uid = dataSnapshot.getKey().toString();
                         arrayList.add(email + " " + displayName);
                         arrayAdapter.notifyDataSetChanged();
+                        uidList.add(uid);
                     }
 
                     @Override
@@ -117,6 +121,11 @@ public class ListUserActivity extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(),
                                 "click on position " + position,
                                 Toast.LENGTH_SHORT).show();
+                        String uidSelected = uidList.get(position);
+                        Intent intent = new Intent(ListUserActivity.this, SendMessageActivity.class);
+                        intent.putExtra("UID", uidSelected);
+                        startActivity(intent);
+                        finish();
                     }
                 });
             }

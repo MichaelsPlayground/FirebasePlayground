@@ -86,6 +86,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button sendMessage = findViewById(R.id.btnMainSendMessage);
+        sendMessage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "send a message to another user");
+                Intent intent = new Intent(MainActivity.this, SendMessageActivity.class);
+                startActivity(intent);
+                //finish();
+            }
+        });
+
         Button listUser = findViewById(R.id.btnMainListUser);
         listUser.setOnClickListener(new View.OnClickListener() {
             @Override
