@@ -22,21 +22,25 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.Date;
 import java.util.Objects;
 
+import de.androidcrypto.firebaseplayground.models.MessageModel;
 import de.androidcrypto.firebaseplayground.models.UserModel;
 
 public class SendMessageActivity extends AppCompatActivity {
 
-    com.google.android.material.textfield.TextInputEditText signedInUser, recieveUser;
-    com.google.android.material.textfield.TextInputEditText userId, userEmail, userPhotoUrl, userPublicKey, userName;
+    com.google.android.material.textfield.TextInputEditText signedInUser, receiveUser;
+    com.google.android.material.textfield.TextInputEditText edtMessage, edtRoomId, userPhotoUrl, userPublicKey, userName;
+    com.google.android.material.textfield.TextInputLayout edtMessageLayout;
     TextView warningNoData;
 
     static final String TAG = "SendMessage";
     // get the data from auth
     private static String authUserId = "", authUserEmail, authDisplayName, authPhotoUrl;
+    private static String receiveUserId = "", receiveUserEmail = "", receiveUserDisplayName = "";
 
-    private DatabaseReference mDatabase;
+    private DatabaseReference mDatabaseReference;
     private FirebaseAuth mAuth;
     ProgressBar progressBar;
 
@@ -46,8 +50,12 @@ public class SendMessageActivity extends AppCompatActivity {
         setContentView(R.layout.activity_send_message);
 
         signedInUser = findViewById(R.id.etSendMessageSignedInUser);
-        recieveUser = findViewById(R.id.etSendMessageRecieveUser);
+        receiveUser = findViewById(R.id.etSendMessageReceiveUser);
         progressBar = findViewById(R.id.pbSendMessage);
+
+        edtMessageLayout = findViewById(R.id.etSendMessageMessageLayout);
+        edtMessage = findViewById(R.id.etSendMessageMessage);
+        edtRoomId = findViewById(R.id.etSendMessageRoomId);
 /*
         warningNoData = findViewById(R.id.tvDatabaseUserNoData);
         userId = findViewById(R.id.etDatabaseUserUserId);
@@ -64,23 +72,34 @@ public class SendMessageActivity extends AppCompatActivity {
         // Initialize Firebase Database
         // https://fir-playground-1856e-default-rtdb.europe-west1.firebasedatabase.app/
         // if the database location is not us we need to use the reference:
-        mDatabase = FirebaseDatabase.getInstance("https://fir-playground-1856e-default-rtdb.europe-west1.firebasedatabase.app/").getReference();
+        mDatabaseReference = FirebaseDatabase.getInstance("https://fir-playground-1856e-default-rtdb.europe-west1.firebasedatabase.app/").getReference();
         // the following can be used if the database server location is us
-        //mDatabase = FirebaseDatabase.getInstance().getReference();
+        //mDatabaseReference = FirebaseDatabase.getInstance().getReference();
 
         Intent intent = getIntent();
-        String selectedUid = intent.getStringExtra("UID");
-        if (selectedUid != null) {
-            Log.i(TAG, "selectedUid: " + selectedUid);
-            recieveUser.setText(selectedUid);
+        receiveUserId = intent.getStringExtra("UID");
+        if (receiveUserId != null) {
+            Log.i(TAG, "selectedUid: " + receiveUserId);
         }
+        receiveUserEmail = intent.getStringExtra("EMAIL");
+        if (receiveUserEmail != null) {
+            Log.i(TAG, "selectedEmail: " + receiveUserEmail);
+        }
+        receiveUserDisplayName = intent.getStringExtra("DISPLAYNAME");
+        if (receiveUserDisplayName != null) {
+            Log.i(TAG, "selectedDisplayName: " + receiveUserDisplayName);
+        }
+        String receiveUserString = "Email: " + receiveUserEmail;
+        receiveUserString += "\nUID: " + receiveUserId;
+        receiveUserString += "\nDisplay Name: " + receiveUserDisplayName;
+        receiveUser.setText(receiveUserString);
+        Log.i(TAG, "receiveUser: " + receiveUserString);
 
  //       Button loadData = findViewById(R.id.btnDatabaseUserLoad);
  //       Button savaData = findViewById(R.id.btnDatabaseUserSave);
 
         Button selectRecipient = findViewById(R.id.btnSendMessageSelectRecipient);
         Button backToMain = findViewById(R.id.btnSendMessageToMain);
-
 
         selectRecipient.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -91,84 +110,6 @@ public class SendMessageActivity extends AppCompatActivity {
             }
         });
 
-        /*
-        loadData.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                warningNoData.setVisibility(View.GONE);
-                showProgressBar();
-                Log.i(TAG, "load user data from database for user id: " + authUserId);
-                if (!authUserId.equals("")) {
-                    mDatabase.child("users").child(authUserId).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DataSnapshot> task) {
-                            hideProgressBar();
-                            if (!task.isSuccessful()) {
-                                Log.e(TAG, "Error getting data", task.getException());
-                            } else {
-                                // check for a null value means no user data were saved before
-                                UserModel userModel = task.getResult().getValue(UserModel.class);
-                                Log.i(TAG, String.valueOf(userModel));
-                                if (userModel == null) {
-                                    Log.i(TAG, "userModel is null, show message");
-                                    warningNoData.setVisibility(View.VISIBLE);
-                                    // get data from user
-                                    userId.setText(authUserId);
-                                    userEmail.setText(authUserEmail);
-                                    userName.setText(usernameFromEmail(authUserEmail));
-                                    userPublicKey.setText("not in use");
-                                    userPhotoUrl.setText(authPhotoUrl);
-                                } else {
-                                    Log.i(TAG, "userModel email: " + userModel.getUserMail());
-                                    warningNoData.setVisibility(View.GONE);
-                                    // get data from user
-                                    userId.setText(authUserId);
-                                    userEmail.setText(userModel.getUserMail());
-                                    userName.setText(userModel.getUserName());
-                                    userPublicKey.setText(userModel.getUserPublicKey());
-                                    userPhotoUrl.setText(userModel.getUserPhotoUrl());
-                                }
-                            }
-                        }
-                    });
-                } else {
-                    Toast.makeText(getApplicationContext(),
-                            "sign in a user before loading",
-                            Toast.LENGTH_SHORT).show();
-                    hideProgressBar();
-                }
-            }
-        });
-
-        savaData.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showProgressBar();
-                Log.i(TAG, "save user data from database for user id: " + authUserId);
-                if (!authUserId.equals("")) {
-                    if (!Objects.requireNonNull(userId.getText()).toString().equals("")) {
-                        warningNoData.setVisibility(View.GONE);
-                        writeNewUser(authUserId, Objects.requireNonNull(userName.getText()).toString(),
-                                Objects.requireNonNull(userEmail.getText()).toString(),
-                                Objects.requireNonNull(userPhotoUrl.getText()).toString(),
-                                Objects.requireNonNull(userPublicKey.getText()).toString());
-                        Snackbar snackbar = Snackbar
-                                .make(view, "data written to database", Snackbar.LENGTH_SHORT);
-                        snackbar.show();
-                    } else {
-                        Toast.makeText(getApplicationContext(),
-                                "load user data before saving",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    Toast.makeText(getApplicationContext(),
-                            "sign in a user before saving",
-                            Toast.LENGTH_SHORT).show();
-                }
-                hideProgressBar();
-            }
-        });
-*/
         backToMain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -177,7 +118,102 @@ public class SendMessageActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+/*
+static data:
+authUser:
+Email: michael.telefon08@gmail.com
+UID: VgNGhMth85Y0Szg6FxLMcWkEpmA3
+Display Name: Michael Fehr
+
+receiveUser:
+Email: klaus.zwang.1934@gmail.com
+UID: 0QCS5u2UnxYURlbntvVTA6ZTbaO2
+Display Name: klaus.zwang.1934@gmail.com
+ */
+
+        edtMessageLayout.setEndIconOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showProgressBar();
+                // todo get the real uids, remove these line
+                if (authUserId.equals("VgNGhMth85Y0Szg6FxLMcWkEpmA3")) {
+                    receiveUserId = "0QCS5u2UnxYURlbntvVTA6ZTbaO2";
+                } else {
+                    authUserId = "0QCS5u2UnxYURlbntvVTA6ZTbaO2";
+                    receiveUserId = "VgNGhMth85Y0Szg6FxLMcWkEpmA3";
+                }
+
+                // get the roomId by comparing 2 UID strings
+                String roomId = getRoomId(authUserId, receiveUserId);
+                String messageString = edtMessage.getText().toString();
+                edtRoomId.setText(roomId);
+                Log.i(TAG, "message: " + messageString);
+                Log.i(TAG, "roomId: " + roomId);
+                // now we are going to send data to the database
+                long actualTime = new Date().getTime();
+                /*
+                retrieve the time string in GMT
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                String millisInString  = dateFormat.format(new Date());
+                 */
+                MessageModel messageModel = new MessageModel(authUserId, messageString, actualTime, false);
+                mDatabaseReference.child("messages").child(roomId).push().setValue(messageModel);
+                // without push there is no new chatId key
+                // mDatabaseReference.child("messages").child(roomId).setValue(messageModel);
+                Toast.makeText(getApplicationContext(),
+                        "message written to database",
+                        Toast.LENGTH_SHORT).show();
+                edtMessage.setText("");
+            }
+        });
+
+        Button send = findViewById(R.id.btnSendMessageSend);
+        send.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // todo get the real uids, remove the line
+                receiveUserId = "0QCS5u2UnxYURlbntvVTA6ZTbaO2";
+                // get the roomId by comparing 2 UID strings
+                String roomId = getRoomId(authUserId, receiveUserId);
+                String messageString = edtMessage.getText().toString();
+                edtRoomId.setText(roomId);
+                Log.i(TAG, "message: " + messageString);
+                Log.i(TAG, "roomId: " + roomId);
+                // now we are going to send data to the database
+                long actualTime = new Date().getTime();
+                /*
+                retrieve the time string in GMT
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                String millisInString  = dateFormat.format(new Date());
+                 */
+                MessageModel messageModel = new MessageModel(authUserId, messageString, actualTime, false);
+                mDatabaseReference.child("messages").child(roomId).push().setValue(messageModel);
+                // without push there is no new chatId key
+                // mDatabaseReference.child("messages").child(roomId).setValue(messageModel);
+                Toast.makeText(getApplicationContext(),
+                        "message written to database",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
     }
+
+    /**
+     * service methods
+     */
+
+    // compare two strings and build a new string: if a < b: ab if a > b: ba, if a = b: ab
+    private String getRoomId(String a, String b) {
+        int compare = a.compareTo(b);
+        if (compare > 0) return b + a;
+        else return a + b;
+    }
+
+    /**
+     * basic
+     */
 
     @Override
     public void onStart() {
@@ -217,8 +253,16 @@ public class SendMessageActivity extends AppCompatActivity {
         if (user != null) {
             authUserId = user.getUid();
             authUserEmail = user.getEmail();
+            if (user.getDisplayName() != null) {
+                authDisplayName = Objects.requireNonNull(user.getDisplayName()).toString();
+            } else {
+                authDisplayName = "no display name available";
+            }
             String userData = String.format("Email: %s", authUserEmail);
+            userData += "\nUID: " + authUserId;
+            userData += "\nDisplay Name: " + authDisplayName;
             signedInUser.setText(userData);
+            Log.i(TAG, "authUser: " + userData);
         } else {
             signedInUser.setText(null);
         }

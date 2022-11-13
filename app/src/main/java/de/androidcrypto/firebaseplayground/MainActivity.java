@@ -97,6 +97,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button listMessages = findViewById(R.id.btnMainListMessages);
+        listMessages.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "list messages on database");
+                Intent intent = new Intent(MainActivity.this, ListMessagesActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+
         Button listUser = findViewById(R.id.btnMainListUser);
         listUser.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -107,6 +118,8 @@ public class MainActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+
     }
 
     @Override

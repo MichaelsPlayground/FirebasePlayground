@@ -6,6 +6,7 @@ import java.util.Map;
 public class MessageModel {
 
     String message;
+    String senderId;
     long messageTime;
     boolean messageEncrypted;
 
@@ -13,7 +14,8 @@ public class MessageModel {
 
     }
 
-    public MessageModel(String message, long messageTime, boolean messageEncrypted) {
+    public MessageModel(String senderId, String message, long messageTime, boolean messageEncrypted) {
+        this.senderId = senderId;
         this.message = message;
         this.messageTime = messageTime;
         this.messageEncrypted = messageEncrypted;
@@ -21,10 +23,19 @@ public class MessageModel {
 
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
+        result.put("sender", senderId);
         result.put("message", message);
         result.put("messageTime", messageTime);
         result.put("messageEncrypted", messageEncrypted);
         return result;
+    }
+
+    public String getSenderId() {
+        return senderId;
+    }
+
+    public void setSenderId(String senderId) {
+        this.senderId = senderId;
     }
 
     public String getMessage() {

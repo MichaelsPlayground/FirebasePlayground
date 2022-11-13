@@ -158,6 +158,15 @@
                 android:layout_marginEnd="16dp"
                 android:text="send a message to another user" />
 
+            <Button
+                android:id="@+id/btnMainListMessages"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:text="list messages" />
+
             <com.google.android.material.divider.MaterialDivider
                 android:layout_width="match_parent"
                 android:layout_height="2dp"
