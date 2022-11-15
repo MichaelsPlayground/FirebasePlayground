@@ -1,6 +1,9 @@
 package de.androidcrypto.firebaseplayground;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -9,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationManagerCompat;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -19,6 +23,7 @@ import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String CHANNEL_ID = "123";
     com.google.android.material.textfield.TextInputEditText signedInUser;
 
     static final String TAG = "Main";
@@ -104,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "list messages on database");
                 Intent intent = new Intent(MainActivity.this, ListMessagesActivity.class);
                 startActivity(intent);
-                finish();
+                //finish();
             }
         });
 
@@ -115,12 +120,46 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "list user on database");
                 Intent intent = new Intent(MainActivity.this, ListUserActivity.class);
                 startActivity(intent);
-                finish();
+                //finish();
+            }
+        });
+
+
+
+        createNotificationChannel();
+
+        Button sendNotification = findViewById(R.id.btnMainSendNotification);
+        sendNotification.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "send notification");
+                Intent intent = new Intent(MainActivity.this, SendNotificationActivity.class);
+                startActivity(intent);
+                //finish();
             }
         });
 
 
     }
+
+    public void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "CH NAME";
+            String description = "CH description";
+            //CharSequence name = getString(R.string.channel_name);
+            //String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
 
     @Override
     public void onStart() {

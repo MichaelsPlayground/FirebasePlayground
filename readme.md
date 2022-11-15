@@ -48,15 +48,20 @@ Sign in with an Google account: https://firebase.google.com/docs/auth/android/go
 **Storage**:
 
 
+
+**Messaging**:
+
 **code snippets that are used in the descriptions**: https://github.com/firebase/snippets-android
 
 **complete code example apps**:
 
-- Authentication: https://github.com/firebase/quickstart-android/tree/master/auth
+* Authentication: https://github.com/firebase/quickstart-android/tree/master/auth
 
-- Database: https://github.com/firebase/quickstart-android/tree/master/database
+* Database: https://github.com/firebase/quickstart-android/tree/master/database
 
-- Storage: https://github.com/firebase/quickstart-android/tree/master/storage
+* Storage: https://github.com/firebase/quickstart-android/tree/master/storage
+
+* Messaging: https://github.com/firebase/quickstart-android/tree/master/messaging
 
 **dependencies**:
 

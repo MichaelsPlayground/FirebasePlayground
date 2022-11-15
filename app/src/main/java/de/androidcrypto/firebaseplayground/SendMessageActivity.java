@@ -95,8 +95,8 @@ public class SendMessageActivity extends AppCompatActivity {
         receiveUser.setText(receiveUserString);
         Log.i(TAG, "receiveUser: " + receiveUserString);
 
- //       Button loadData = findViewById(R.id.btnDatabaseUserLoad);
- //       Button savaData = findViewById(R.id.btnDatabaseUserSave);
+        //       Button loadData = findViewById(R.id.btnDatabaseUserLoad);
+        //       Button savaData = findViewById(R.id.btnDatabaseUserSave);
 
         Button selectRecipient = findViewById(R.id.btnSendMessageSelectRecipient);
         Button backToMain = findViewById(R.id.btnSendMessageToMain);
