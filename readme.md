@@ -7,12 +7,10 @@ It includes the following tasks:
 **Authentication**: if a client is accessing the Firebase service it needs to be "registered" user 
 and the following services are running here:
 
-- sign in with email and password
-- sign in with email and password (email verification)
-- sign in using an Google account
-- sign in anonymously
-- sign out the existing user
-
+* sign in with email and password (without email verification)
+* sign in using an Google account
+* sign in anonymously
+* sign out the existing user
 
 **Ressources used for this playground**
 
@@ -21,7 +19,6 @@ Most ressources are from Google's Firebase developer site
 **General**: 
 
 start with https://firebase.google.com/docs/android/setup
-
 
 **Authentication**: 
 
@@ -49,19 +46,16 @@ Sign in with an Google account: https://firebase.google.com/docs/auth/android/go
 
 
 
+
 **Messaging**:
 
+01 https://firebase.google.com/docs/cloud-messaging/server
+
+02 https://firebase.google.com/docs/cloud-messaging/migrate-v1
+
+03 https://firebase.google.com/docs/cloud-messaging/auth-server
+
 **code snippets that are used in the descriptions**: https://github.com/firebase/snippets-android
-
-Informations about FCM:
-
-https://firebase.google.com/docs/cloud-messaging/server
-
-https://firebase.google.com/docs/cloud-messaging/migrate-v1
-
-https://firebase.google.com/docs/cloud-messaging/auth-server
-
-messaging quickstart-java: https://github.com/firebase/quickstart-java
 
 **complete code example apps**:
 
