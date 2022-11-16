@@ -186,15 +186,24 @@
                 android:textStyle="bold" />
 
             <Button
-                android:id="@+id/btnMainStorageImage"
+                android:id="@+id/btnMainUploadImage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
+                android:enabled="true"
+                android:text="upload an image to Storage" />
 
-                android:enabled="false"
-                android:text="storage upload image" />
+            <Button
+                android:id="@+id/btnMainListImages"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:enabled="true"
+                android:text="list images on Storage" />
 
             <com.google.android.material.divider.MaterialDivider
                 android:layout_width="match_parent"

@@ -49,6 +49,13 @@
                 android:value="" />
         </activity>
         <activity
+            android:name=".ListImagesActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name=".DatabaseUserActivity"
             android:exported="false"
             android:windowSoftInputMode="stateHidden">
@@ -78,6 +85,13 @@
                 android:value="" />
         </activity>
         <activity
+            android:name=".UploadImageActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
@@ -98,5 +112,12 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+        <service
+            android:name=".MyDownloadService"
+            android:exported="false"/>
+
+        <service
+            android:name=".MyUploadService"
+            android:exported="false" />
     </application>
 </manifest>

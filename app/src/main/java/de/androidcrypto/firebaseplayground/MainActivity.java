@@ -121,6 +121,28 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button uploadImage = findViewById(R.id.btnMainUploadImage);
+        uploadImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "upload an image to Storage");
+                Intent intent = new Intent(MainActivity.this, UploadImageActivity.class);
+                startActivity(intent);
+                //finish();
+            }
+        });
+
+        Button listImages = findViewById(R.id.btnMainListImages);
+        listImages.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "list images on storage");
+                Intent intent = new Intent(MainActivity.this, ListImagesActivity.class);
+                startActivity(intent);
+                //finish();
+            }
+        });
+
         Button listUser = findViewById(R.id.btnMainListUser);
         listUser.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -132,8 +154,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-
+        // we need this to receive notifications
         createNotificationChannel();
 
         Button sendNotification = findViewById(R.id.btnMainSendNotification);

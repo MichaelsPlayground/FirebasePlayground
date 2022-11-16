@@ -44,8 +44,23 @@ Sign in with an Google account: https://firebase.google.com/docs/auth/android/go
 
 **Storage**:
 
+01 https://firebase.google.com/docs/storage
 
+02 https://firebase.google.com/docs/storage/android/start
 
+03 https://firebase.google.com/docs/storage/android/create-reference
+
+04 https://firebase.google.com/docs/storage/android/upload-files
+
+05 https://firebase.google.com/docs/storage/android/download-files
+
+06 https://firebase.google.com/docs/storage/android/file-metadata
+
+07 https://firebase.google.com/docs/storage/android/delete-files
+
+08 https://firebase.google.com/docs/storage/android/list-files
+
+09 https://firebase.google.com/docs/storage/android/handle-errors
 
 **Messaging**:
 
@@ -64,6 +79,8 @@ Sign in with an Google account: https://firebase.google.com/docs/auth/android/go
 * Database: https://github.com/firebase/quickstart-android/tree/master/database
 
 * Storage: https://github.com/firebase/quickstart-android/tree/master/storage
+
+* Storage: https://github.com/firebase/snippets-android/blob/3557274c818ae268cc5a54c61cec38f8c2daf196/storage/app/src/main/java/com/google/firebase/referencecode/storage/StorageActivity.java#L437-L447
 
 * Messaging: https://github.com/firebase/quickstart-android/tree/master/messaging
 
@@ -192,4 +209,16 @@ Database rules (this is a temporay rule set):
   }
 }
 
+```
+
+Storage rules:
+```plaintext
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if true;
+    }
+  }
+}
 ```
