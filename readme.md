@@ -53,6 +53,16 @@ Sign in with an Google account: https://firebase.google.com/docs/auth/android/go
 
 **code snippets that are used in the descriptions**: https://github.com/firebase/snippets-android
 
+Informations about FCM:
+
+https://firebase.google.com/docs/cloud-messaging/server
+
+https://firebase.google.com/docs/cloud-messaging/migrate-v1
+
+https://firebase.google.com/docs/cloud-messaging/auth-server
+
+messaging quickstart-java: https://github.com/firebase/quickstart-java
+
 **complete code example apps**:
 
 * Authentication: https://github.com/firebase/quickstart-android/tree/master/auth

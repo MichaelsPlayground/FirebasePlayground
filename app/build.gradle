@@ -58,4 +58,7 @@ dependencies {
     //
     implementation 'com.google.auth:google-auth-library-oauth2-http:1.7.0'
     implementation 'com.google.code.gson:gson:2.9.0'
+
+    // for FcmNotificationService
+    implementation 'com.android.volley:volley:1.2.1'
 }

@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -39,6 +40,13 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
+
+
+        // todo use Async Methods for sending notifications (Google)
+        // the error happens while doing network operations on MainThread
+        // solution: https://stackoverflow.com/questions/25093546/android-os-networkonmainthreadexception-at-android-os-strictmodeandroidblockgua
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
 
         Button signUpWithEmailAndPassword = findViewById(R.id.btnMainSignUpEmailPassword);
         signUpWithEmailAndPassword.setOnClickListener(new View.OnClickListener() {

@@ -53,6 +53,8 @@ public class SendNotificationActivity extends AppCompatActivity {
     com.google.android.material.textfield.TextInputEditText signedInUser, deviceToken;
     com.google.android.material.textfield.TextInputEditText edtNotification, edtRoomId, userPhotoUrl, userPublicKey, userName;
     com.google.android.material.textfield.TextInputLayout edtNotificationLayout;
+    com.google.android.material.textfield.TextInputEditText edtNotificationGoogle;
+    com.google.android.material.textfield.TextInputLayout edtNotificationGoogleLayout;
     TextView warningNoData;
 
     static final String TAG = "SendNotification";
@@ -91,6 +93,8 @@ public class SendNotificationActivity extends AppCompatActivity {
 
         edtNotificationLayout = findViewById(R.id.etSendNotificationNotificationLayout);
         edtNotification = findViewById(R.id.etSendNotificationNotification);
+        edtNotificationGoogleLayout = findViewById(R.id.etSendNotificationNotificationGoogleLayout);
+        edtNotificationGoogle = findViewById(R.id.etSendNotificationNotificationGoogle);
         edtRoomId = findViewById(R.id.etSendNotificationRoomId);
 /*
         warningNoData = findViewById(R.id.tvDatabaseUserNoData);
@@ -253,10 +257,147 @@ ddEQFQCsT5y-2NHtsQlBZ4:APA91bH7wU9Cd_7XiyVziWV0nZkGN0Rf1P-wkkgAxhIzpk6Ivo45zFgyk
 
                 //sendCommonMessage(textContent);
 
+                String receiverToken = "ddEQFQCsT5y-2NHtsQlBZ4:APA91bH7wU9Cd_7XiyVziWV0nZkGN0Rf1P-wkkgAxhIzpk6Ivo45zFgykEf7t7_2pJ8zPHKEf0jUOGwtqaVIR8gMvTGrI4YznnLAWgBXUda83aMGHdlkEi_CpA1y1c5iBJpXHYQWsl36";
+                String senderName = "Playground";
+                String msg = edtNotification.getText().toString(); // todo null check
+                FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender(receiverToken, senderName
+                        , msg, getApplicationContext(), SendNotificationActivity.this);
+                fcmNotificationsSender.SendNotifications();
 
             }
         });
 
+        edtNotificationGoogleLayout.setEndIconOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.i(TAG, "send notification (Google)");
+                String textContent = "N: " + edtNotification.getText().toString();
+                // https://firebase.google.com/docs/cloud-messaging/auth-server
+                // https://github.com/firebase/quickstart-java/blob/f75816cd181cdaf49401db3b3b52e4f20f629470/messaging/src/main/java/com/google/firebase/quickstart/Messaging.java#L62-L66
+
+                // https://stackoverflow.com/questions/73539295/service-account-json-open-failed-enoent-no-such-file-or-directory
+
+                //sendCommonMessage(textContent);
+
+                String receiverToken = "ddEQFQCsT5y-2NHtsQlBZ4:APA91bH7wU9Cd_7XiyVziWV0nZkGN0Rf1P-wkkgAxhIzpk6Ivo45zFgykEf7t7_2pJ8zPHKEf0jUOGwtqaVIR8gMvTGrI4YznnLAWgBXUda83aMGHdlkEi_CpA1y1c5iBJpXHYQWsl36";
+                String senderName = "Playground G";
+                String msg = edtNotification.getText().toString(); // todo null check
+                FcmNotificationsSenderGoogle fcmNotificationsSenderGoogle = new FcmNotificationsSenderGoogle(receiverToken, senderName
+                        , msg, getApplicationContext(), SendNotificationActivity.this);
+                //fcmNotificationsSenderGoogle.SendNotifications();
+                JsonObject notificationMessage = FcmNotificationsSenderGoogle.buildNotificationMessage("Title1", msg);
+                Log.i(TAG, "notificationMessage: " + notificationMessage.toString());
+                prettyPrint(notificationMessage);
+                String accessToken = "";
+                try {
+                    accessToken = getAccessToken();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                Log.i(TAG, "getAccessToken: " + accessToken);
+
+                // new, result is in BEARERTOKEN
+                try {
+                    getAccessTokenNew();
+                    Log.i(TAG, "getAccessTokenNew: " + BEARERTOKEN);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    getAccessTokenNewFull(receiverToken, "Title1", msg);
+                    Log.i(TAG, "getAccessTokenNewFull: " + BEARERTOKEN);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                // now let's send
+                /*
+                try {
+                    FcmNotificationsSenderGoogle.sendMessage(notificationMessage, BEARERTOKEN);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+*/
+            }
+        });
+
+    }
+
+    /**
+     * Retrieve a valid access token that can be use to authorize requests to the FCM REST
+     * API.
+     *
+     * @return Access token.
+     * @throws IOException
+     */
+    // [START retrieve_access_token]
+    private static String getAccessToken() throws IOException {
+        GoogleCredentials googleCredentials = GoogleCredentials
+                .fromStream(new FileInputStream("service-account.json"))
+                .createScoped(Arrays.asList(SCOPES));
+        googleCredentials.refreshAccessToken();
+        return googleCredentials.getAccessToken().getTokenValue();
+    }
+
+    //String userFcmToken, String title, String body
+    private void getAccessTokenNewFull(String userFcmToken, String title, String body) throws IOException {
+        jasonfile = getResources().openRawResource(getApplicationContext().getResources().getIdentifier("serviceaccount","raw",getPackageName()));
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    googleCredentials = GoogleCredentials
+                            .fromStream(jasonfile)
+                            .createScoped(Arrays.asList(SCOPES));
+                    //googleCredentials.refreshAccessToken().getTokenValue();
+                    beaerertoken = googleCredentials.refreshAccessToken().getTokenValue();
+                    Log.i(TAG, "beaerertoken:  " + beaerertoken);
+                    BEARERTOKEN = beaerertoken;
+                    JsonObject notificationMessage = FcmNotificationsSenderGoogle.buildNotificationMessage(title, body);
+                    sendMessage(notificationMessage, beaerertoken);
+                } catch (IOException e) {
+                    Log.d(TAG, "In error statement");
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    private void getAccessTokenNew() throws IOException {
+        jasonfile = getResources().openRawResource(getApplicationContext().getResources().getIdentifier("serviceaccount","raw",getPackageName()));
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    googleCredentials = GoogleCredentials
+                            .fromStream(jasonfile)
+                            .createScoped(Arrays.asList(SCOPES));
+                    //googleCredentials.refreshAccessToken().getTokenValue();
+                    beaerertoken = googleCredentials.refreshAccessToken().getTokenValue();
+                    Log.i(TAG, "beaerertoken:  " + beaerertoken);
+                    BEARERTOKEN = beaerertoken;
+                } catch (IOException e) {
+                    Log.d(TAG, "In error statement");
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    /**
+     * Create HttpURLConnection that can be used for both retrieving and publishing.
+     *
+     * @return Base HttpURLConnection.
+     * @throws IOException
+     */
+    public static HttpURLConnection getConnection(String bearerToken) throws IOException {
+        Log.i(TAG, "start get connection with bearerToken: " + bearerToken);
+        URL url = new URL(BASE_URL + FCM_SEND_ENDPOINT);
+        HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+        httpURLConnection.setRequestProperty("Authorization", "Bearer " + bearerToken);
+        httpURLConnection.setRequestProperty("Content-Type", "application/json; UTF-8");
+        return httpURLConnection;
     }
 
     // is called from MainActivity on create
@@ -304,41 +445,8 @@ ddEQFQCsT5y-2NHtsQlBZ4:APA91bH7wU9Cd_7XiyVziWV0nZkGN0Rf1P-wkkgAxhIzpk6Ivo45zFgyk
         return googleCredentials.refreshAccessToken().getTokenValue();
     }
 */
-    private void getAccessTokenNew() throws IOException {
-        jasonfile = getResources().openRawResource(getApplicationContext().getResources().getIdentifier("serviceaccount","raw",getPackageName()));
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    googleCredentials = GoogleCredentials
-                            .fromStream(jasonfile)
-                            .createScoped(Arrays.asList(SCOPES));
-                    googleCredentials.refreshAccessToken().getTokenValue();
-                    beaerertoken = googleCredentials.refreshAccessToken().getTokenValue();
-                    Log.d(TAG, "beaerertoken:  " + beaerertoken);
-                    BEARERTOKEN = beaerertoken;
-                } catch (IOException e) {
-                    Log.d(TAG, "In error statement");
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-    }
 
-    /**
-     * Create HttpURLConnection that can be used for both retrieving and publishing.
-     *
-     * @return Base HttpURLConnection.
-     * @throws IOException
-     */
-    private static HttpURLConnection getConnection() throws IOException {
-        URL url = new URL(BASE_URL + FCM_SEND_ENDPOINT);
-        HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
-  //      httpURLConnection.setRequestProperty("Authorization", "Bearer " + getAccessToken());
 
-        httpURLConnection.setRequestProperty("Content-Type", "application/json; UTF-8");
-        return httpURLConnection;
-    }
 
     /**
      * Send request to FCM message using HTTP.
@@ -347,15 +455,25 @@ ddEQFQCsT5y-2NHtsQlBZ4:APA91bH7wU9Cd_7XiyVziWV0nZkGN0Rf1P-wkkgAxhIzpk6Ivo45zFgyk
      * @param fcmMessage Body of the HTTP request.
      * @throws IOException
      */
-    private static void sendMessage(JsonObject fcmMessage) throws IOException {
-        HttpURLConnection connection = getConnection();
+
+    /**
+     * Send request to FCM message using HTTP.
+     * Encoded with UTF-8 and support special characters.
+     *
+     * @param fcmMessage Body of the HTTP request.
+     * @throws IOException
+     */
+    public static void sendMessage(JsonObject fcmMessage, String bearerToken) throws IOException {
+        Log.i(TAG, "start sendMessage");
+        HttpURLConnection connection = getConnection(bearerToken);
+        Log.i(TAG, "sendMessage connection: " + connection.toString());
         connection.setDoOutput(true);
         OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream(), "UTF-8");
         writer.write(fcmMessage.toString());
         writer.flush();
         writer.close();
-
         int responseCode = connection.getResponseCode();
+        Log.i(TAG, "sendMessage responseCode: " + responseCode);
         if (responseCode == 200) {
             String response = inputstreamToString(connection.getInputStream());
             System.out.println("Message sent to Firebase for delivery, response:");
@@ -402,7 +520,7 @@ ddEQFQCsT5y-2NHtsQlBZ4:APA91bH7wU9Cd_7XiyVziWV0nZkGN0Rf1P-wkkgAxhIzpk6Ivo45zFgyk
         JsonObject notificationMessage = buildNotificationMessage();
         System.out.println("FCM request body for message using common notification object:");
         prettyPrint(notificationMessage);
-        sendMessage(notificationMessage);
+        //sendMessage(notificationMessage);
     }
 
     /**
