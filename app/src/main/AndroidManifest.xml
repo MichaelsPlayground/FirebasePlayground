@@ -35,6 +35,13 @@
                 android:value="" />
         </activity>
         <activity
+            android:name=".ListUserNotificationActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name=".ListMessagesActivity"
             android:exported="false">
             <meta-data

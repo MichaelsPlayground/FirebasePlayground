@@ -1,14 +1,9 @@
 package de.androidcrypto.firebaseplayground;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -16,6 +11,10 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -26,21 +25,18 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import de.androidcrypto.firebaseplayground.models.UserModel;
-
-public class ListUserActivity extends AppCompatActivity {
+public class ListUserNotificationActivity extends AppCompatActivity {
 
     com.google.android.material.textfield.TextInputEditText signedInUser;
     com.google.android.material.textfield.TextInputEditText userId, userEmail, userPhotoUrl, userPublicKey, userName;
     TextView warningNoData;
 
-    static final String TAG = "ListUser";
+    static final String TAG = "ListUserNotification";
     // get the data from auth
     private static String authUserId = "", authUserEmail, authDisplayName, authPhotoUrl;
     ListView userListView;
@@ -52,7 +48,7 @@ public class ListUserActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list_user);
+        setContentView(R.layout.activity_list_user_notification);
 
         signedInUser = findViewById(R.id.etDatabaseUserSignedInUser);
         progressBar = findViewById(R.id.pbDatabaseUser);
@@ -81,7 +77,7 @@ public class ListUserActivity extends AppCompatActivity {
                 List<String> uidList = new ArrayList<>();
                 List<String> emailList = new ArrayList<>();
                 List<String> displayNameList = new ArrayList<>();
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(ListUserActivity.this, android.R.layout.simple_list_item_1, arrayList);
+                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(ListUserNotificationActivity.this, android.R.layout.simple_list_item_1, arrayList);
                 userListView.setAdapter(arrayAdapter);
                 usersRef.addChildEventListener(new ChildEventListener() {
                     @Override
@@ -129,12 +125,38 @@ public class ListUserActivity extends AppCompatActivity {
                         String uidSelected = uidList.get(position);
                         String emailSelected = emailList.get(position);
                         String displayNameSelected = displayNameList.get(position);
-                        Intent intent = new Intent(ListUserActivity.this, SendMessageActivity.class);
-                        intent.putExtra("UID", uidSelected);
-                        intent.putExtra("EMAIL", emailSelected);
-                        intent.putExtra("DISPLAYNAME", displayNameSelected);
-                        startActivity(intent);
-                        finish();
+                        // here we are trying to get the device token for the receipient
+
+                        mDatabase.child("userstoken").child(uidSelected).child("device_token").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                                if (!task.isSuccessful()) {
+                                    Log.e(TAG, "Error getting data for userstoken", task.getException());
+                                }
+                                else {
+                                    String deviceToken = String.valueOf(task.getResult().getValue());
+                                    if (deviceToken.equals("null")) deviceToken = "";
+                                    Log.i(TAG, "Value:" + String.valueOf(task.getResult().getValue()));
+                                    if (deviceToken == null) {
+                                        Intent intent = new Intent(ListUserNotificationActivity.this, SendNotificationActivity.class);
+                                        intent.putExtra("UID", uidSelected);
+                                        intent.putExtra("EMAIL", emailSelected);
+                                        intent.putExtra("DISPLAYNAME", displayNameSelected);
+                                        intent.putExtra("DEVICETOKEN", "");
+                                        startActivity(intent);
+                                        finish();
+                                    } else {
+                                        Intent intent = new Intent(ListUserNotificationActivity.this, SendNotificationActivity.class);
+                                        intent.putExtra("UID", uidSelected);
+                                        intent.putExtra("EMAIL", emailSelected);
+                                        intent.putExtra("DISPLAYNAME", displayNameSelected);
+                                        intent.putExtra("DEVICETOKEN", deviceToken);
+                                        startActivity(intent);
+                                        finish();
+                                    }
+                                }
+                            }
+                        });
                     }
                 });
             }
@@ -145,7 +167,7 @@ public class ListUserActivity extends AppCompatActivity {
         backToMain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(ListUserActivity.this, MainActivity.class);
+                Intent intent = new Intent(ListUserNotificationActivity.this, MainActivity.class);
                 startActivity(intent);
                 finish();
             }

@@ -47,7 +47,7 @@ public class FcmNotificationsSenderGoogle {
     private final String fcmServerKey = "AAAA7WlMaYI:APA91bEvt_DoL1XRSAJIThgSLFjD-sSIueSRqGGfXpgfYJ-gTDLp_38BFKnbssdTEMh728q8Pe0lkBiueHhoWmSRLft-kJzOUuK12ug_AJq1gD_bRdFQkGiFKgrCB3RhKpSoD2Fe2Kf0";
 
     // new API:
-    private static final String PROJECT_ID = "fir-chatapp-a5632";
+    private static final String PROJECT_ID = "fir-playground-1856e";
     private static final String BASE_URL = "https://fcm.googleapis.com";
     private static final String FCM_SEND_ENDPOINT = "/v1/projects/" + PROJECT_ID + "/messages:send";
 
