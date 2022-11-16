@@ -41,10 +41,6 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
     public void onMessageReceived(RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
 
-
-        //Uri notificationNew = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + getApplicationContext().getPackageName() + "/raw/littlebell14606.mp3");
-        //System.out.println("*** URI: " + notificationNew.toString());
-
         Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
         r.play();
@@ -52,11 +48,11 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
             r.setLooping(false);
         }
 
-
         // vibration
         Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         long[] pattern = {100, 300};
         v.vibrate(pattern, -1);
+
         int resourceImage = getResources().getIdentifier(Objects.requireNonNull(remoteMessage.getNotification()).getIcon(), "drawable", getPackageName());
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "CHANNEL_ID");
@@ -67,14 +63,14 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
         }
 
         Intent resultIntent = new Intent(this, MainActivity.class);
-        //PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        // old valid until Android 11 PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, resultIntent, PendingIntent.FLAG_IMMUTABLE);
         builder.setContentTitle(remoteMessage.getNotification().getTitle());
         builder.setContentText(remoteMessage.getNotification().getBody());
         builder.setContentIntent(pendingIntent);
         builder.setStyle(new NotificationCompat.BigTextStyle().bigText(remoteMessage.getNotification().getBody()));
+        builder.setSmallIcon(R.drawable.ic_notification);
         builder.setAutoCancel(true);
-        //builder.setSound(notificationNew);
         builder.setPriority(Notification.PRIORITY_MAX);
 
         mNotificationManager =

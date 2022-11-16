@@ -36,10 +36,6 @@ import java.util.Scanner;
 
 public class SendNotificationActivity extends AppCompatActivity {
 
-    /**
-    * this activity uses the new messaging API but is not working properly, so I switched back to legacy API
-    */
-
     com.google.android.material.textfield.TextInputEditText signedInUser, deviceToken;
     com.google.android.material.textfield.TextInputEditText receipientDeviceToken;
     com.google.android.material.textfield.TextInputEditText edtNotification;
@@ -117,19 +113,6 @@ public class SendNotificationActivity extends AppCompatActivity {
             }
         });
 
-/*
-static data:
-authUser:
-Email: michael.telefon08@gmail.com
-UID: VgNGhMth85Y0Szg6FxLMcWkEpmA3
-Display Name: Michael Fehr
-
-receiveUser:
-Email: klaus.zwang.1934@gmail.com
-UID: 0QCS5u2UnxYURlbntvVTA6ZTbaO2
-Display Name: klaus.zwang.1934@gmail.com
- */
-
         Button getDeviceToken = findViewById(R.id.btnSendNotificationGetOwnDeviceToken);
         getDeviceToken.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -174,13 +157,6 @@ Display Name: klaus.zwang.1934@gmail.com
             }
         });
 
-/* static device token
-michael.telefon:
-fIwQKKS6Seyqv8RGyvlBoD:APA91bG2c8AlJHLTOd-s-dNVARx1gwb-axnrSnCmVHRlzu5HBkYRoesxm3C48m7hVDztLUFfiDZbFh58eyhEM2TL9qU8dqH55uKbg1bgyC0lOOabo6eVbhK18a8PaDROvQ4PKjPqYZCb
-klaus:
-c-shyXuETIy1X4GvXdqNLC:APA91bGZbfTgLnDzTSAO-J11JNhp79MTxYoZCkDsmU-Z3pDasbmT4UhUDH3ZMbUv1g5cfTXG9IsNvYKK_52GKjRL6AZ4fS2SXpYkIrs1g0zS5wTOQ8w2PDDzLFj7_2dC-JTTdxfJmwMt
- */
-
         edtNotificationLayout.setEndIconOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -193,14 +169,11 @@ c-shyXuETIy1X4GvXdqNLC:APA91bGZbfTgLnDzTSAO-J11JNhp79MTxYoZCkDsmU-Z3pDasbmT4UhUD
                             Toast.LENGTH_SHORT).show();
                     return;
                 }
-
                 String notificationMessage = edtNotification.getText().toString();
                 FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender(receiveUserDeviceToken, NOTIFICATION_TITLE, notificationMessage);
                 fcmNotificationsSender.sendNotifications();
-
             }
         });
-
     }
 
     /**

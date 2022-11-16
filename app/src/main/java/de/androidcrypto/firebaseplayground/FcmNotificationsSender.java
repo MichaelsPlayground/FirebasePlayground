@@ -72,7 +72,8 @@ public class FcmNotificationsSender {
         JsonObject jNotification = new JsonObject();
         jNotification.addProperty("title", title);
         jNotification.addProperty("body", body);
-        jNotification.addProperty("icon", "icon_for_splash");
+        //jNotification.addProperty("icon", "icon_for_splash");
+        jNotification.addProperty("icon", "ic_notification");
         jNotification.addProperty("android_channel_id", "1");
         jNotification.addProperty("sound", "littlebell14606.mp3");
         //jNotification.addProperty("sound", "default");
