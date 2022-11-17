@@ -139,6 +139,49 @@ public class ListImagesActivity extends AppCompatActivity {
             }
         });
 
+/*
+list images
+
+https://stackoverflow.com/questions/43826927/firebase-storage-and-android-images
+
+// Reference to an image file in Cloud Storage
+StorageReference storageReference = = FirebaseStorage.getInstance().getReference().child("myimage");
+
+ImageView image = (ImageView)findViewById(R.id.imageView);
+
+// Load the image using Glide
+Glide.with(thisContext)
+        .using(new FirebaseImageLoader())
+                .load(storageReference)
+                .into(image );
+
+or
+
+see: Put this class FirebaseImageLoader.java into your source, or write yourself.
+https://github.com/firebase/FirebaseUI-Android/blob/master/storage/src/main/java/com/firebase/ui/storage/images/FirebaseImageLoader.java
+
+Make a class anywhere in your app source like below.
+
+@GlideModule
+public class MyAppGlideModule extends AppGlideModule {
+
+@Override
+public void registerComponents(Context context, Glide glide, Registry registry) {
+    // Register FirebaseImageLoader to handle StorageReference
+    registry.append(StorageReference.class, InputStream.class,
+            new FirebaseImageLoader.Factory());
+    }
+}
+
+list images:
+StorageReference storageReference = FirebaseStorage
+                                    .getInstance().getReference().child("myimage");
+
+Glide.with(getApplicationContext())
+      .load(completeStorageRefranceToImage)
+      .into(imageView);
+ */
+
         Button listImagesPaginated = findViewById(R.id.btnListImagesPageRun);
         listImagesPaginated.setOnClickListener(new View.OnClickListener() {
             @Override

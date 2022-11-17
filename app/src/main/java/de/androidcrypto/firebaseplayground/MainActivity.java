@@ -143,6 +143,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button downloadImage = findViewById(R.id.btnMainDownloadImage);
+        downloadImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "download an image from Storage");
+                Intent intent = new Intent(MainActivity.this, DownloadImageActivity.class);
+                startActivity(intent);
+                //finish();
+            }
+        });
+
         Button listUser = findViewById(R.id.btnMainListUser);
         listUser.setOnClickListener(new View.OnClickListener() {
             @Override

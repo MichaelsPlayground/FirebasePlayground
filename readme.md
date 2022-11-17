@@ -82,7 +82,11 @@ Sign in with an Google account: https://firebase.google.com/docs/auth/android/go
 
 * Storage: https://github.com/firebase/snippets-android/blob/3557274c818ae268cc5a54c61cec38f8c2daf196/storage/app/src/main/java/com/google/firebase/referencecode/storage/StorageActivity.java#L437-L447
 
+* Storage: https://github.com/firebase/FirebaseUI-Android/blob/master/storage/src/main/java/com/firebase/ui/storage/images/FirebaseImageLoader.java
+
 * Messaging: https://github.com/firebase/quickstart-android/tree/master/messaging
+
+* General UI: https://github.com/firebase/FirebaseUI-Android
 
 **dependencies**:
 
