@@ -1,6 +1,7 @@
 package de.androidcrypto.firebaseplayground;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -22,11 +23,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
@@ -47,7 +43,6 @@ public class ListImagesActivity extends AppCompatActivity {
     ListView imagesListView;
 
     private StorageReference mStorageRef;
-    private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
     ProgressBar progressBar;
 
@@ -80,6 +75,9 @@ public class ListImagesActivity extends AppCompatActivity {
                 StorageReference listRef = mStorageRef.child("photos");
 
                 List<String> arrayList = new ArrayList<>();
+                List<String> fileNameList = new ArrayList<>();
+                List<String> fileReferenceList = new ArrayList<>();
+                List<StorageReference> storageReferenceList = new ArrayList<>();
                 ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(ListImagesActivity.this, android.R.layout.simple_list_item_1, arrayList);
 
                 listRef.listAll()
@@ -101,7 +99,10 @@ public class ListImagesActivity extends AppCompatActivity {
                                             + "\nname: " + item.getName();
                                     Log.i(TAG, "item: " + listEntry);
                                     arrayList.add(listEntry);
+                                    fileReferenceList.add(item.toString());
+                                    fileNameList.add(item.getName());
                                     arrayAdapter.notifyDataSetChanged();
+                                    storageReferenceList.add(item);
                                 }
                             }
                         })
@@ -115,25 +116,35 @@ public class ListImagesActivity extends AppCompatActivity {
                         imagesListView.setAdapter(arrayAdapter);
 
                 //List<String> arrayList = new ArrayList<>();
-                List<String> uidList = new ArrayList<>();
-                List<String> emailList = new ArrayList<>();
-                List<String> displayNameList = new ArrayList<>();
-
+                //List<String> uidList = new ArrayList<>();
+                //List<String> emailList = new ArrayList<>();
+                //List<String> displayNameList = new ArrayList<>();
 
                 hideProgressBar();
 
                 imagesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                        String uidSelected = uidList.get(position);
-                        String emailSelected = emailList.get(position);
-                        String displayNameSelected = displayNameList.get(position);
-                        Intent intent = new Intent(ListImagesActivity.this, MainActivity.class);
-                        intent.putExtra("UID", uidSelected);
-                        intent.putExtra("EMAIL", emailSelected);
-                        intent.putExtra("DISPLAYNAME", displayNameSelected);
-                        startActivity(intent);
-                        finish();
+                        //String uidSelected = uidList.get(position);
+                        //String emailSelected = emailList.get(position);
+                        //String displayNameSelected = displayNameList.get(position);
+
+                        StorageReference storageReference = storageReferenceList.get(position);
+                        storageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                Uri dlUri = uri;
+                                Log.i(TAG, "downloadUri: " + dlUri.toString());
+                                Intent intent = new Intent(ListImagesActivity.this, DownloadImageActivity.class);
+                                intent.putExtra("FILEREFERENCE", fileReferenceList.get(position));
+                                intent.putExtra("FILENAME", fileNameList.get(position));
+                                intent.putExtra("FILEURI", dlUri.toString());
+                                startActivity(intent);
+                                finish();
+                            }
+                        });
+
+
                     }
                 });
             }

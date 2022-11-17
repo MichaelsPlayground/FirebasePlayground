@@ -170,7 +170,6 @@ public class MyDownloadService extends MyBaseTaskService {
         showFinishedNotification(caption, intent, true);
     }
 
-
     public static IntentFilter getIntentFilter() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(DOWNLOAD_COMPLETED);

@@ -62,6 +62,8 @@ Sign in with an Google account: https://firebase.google.com/docs/auth/android/go
 
 09 https://firebase.google.com/docs/storage/android/handle-errors
 
+10 https://firebase.google.com/docs/storage/android/download-files
+
 **Messaging**:
 
 01 https://firebase.google.com/docs/cloud-messaging/server

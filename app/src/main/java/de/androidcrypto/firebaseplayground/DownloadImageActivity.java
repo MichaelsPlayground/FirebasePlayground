@@ -1,6 +1,9 @@
 package de.androidcrypto.firebaseplayground;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -9,8 +12,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -20,6 +27,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Date;
+import java.util.Locale;
 import java.util.Objects;
 
 import de.androidcrypto.firebaseplayground.models.MessageModel;
@@ -34,11 +42,21 @@ public class DownloadImageActivity extends AppCompatActivity {
     static final String TAG = "SelectImage";
     // get the data from auth
     private static String authUserId = "", authUserEmail, authDisplayName, authPhotoUrl;
+    private static String selectedImageFileReference = "";
     private static String receiveUserId = "", receiveUserEmail = "", receiveUserDisplayName = "";
 
     private DatabaseReference mDatabaseReference;
     private FirebaseAuth mAuth;
     ProgressBar progressBar;
+
+    private static final String KEY_FILE_URI = "key_file_uri";
+    private static final String KEY_DOWNLOAD_URL = "key_download_url";
+
+    private BroadcastReceiver mBroadcastReceiver;
+    private Uri mDownloadUrl = null;
+    private Uri mFileUri = null;
+    private String mFileName = null;
+    private ActivityResultLauncher<String[]> intentLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +70,47 @@ public class DownloadImageActivity extends AppCompatActivity {
         edtMessageLayout = findViewById(R.id.etDownloadImageMessageLayout);
         edtMessage = findViewById(R.id.etDownloadImageMessage);
         edtRoomId = findViewById(R.id.etDownloadImageRoomId);
+
+        // Restore instance state
+        if (savedInstanceState != null) {
+            mFileUri = savedInstanceState.getParcelable(KEY_FILE_URI);
+            mDownloadUrl = savedInstanceState.getParcelable(KEY_DOWNLOAD_URL);
+        }
+        onNewIntent(getIntent());
+
+        // Local broadcast receiver
+        mBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.d(TAG, "onReceive:" + intent);
+                hideProgressBar();
+
+                switch (intent.getAction()) {
+                    case MyDownloadService.DOWNLOAD_COMPLETED:
+                        // Get number of bytes downloaded
+                        long numBytes = intent.getLongExtra(MyDownloadService.EXTRA_BYTES_DOWNLOADED, 0);
+
+                        // Alert success
+                        showMessageDialog(getString(R.string.success), String.format(Locale.getDefault(),
+                                "%d bytes downloaded from %s",
+                                numBytes,
+                                intent.getStringExtra(MyDownloadService.EXTRA_DOWNLOAD_PATH)));
+                        break;
+                    case MyDownloadService.DOWNLOAD_ERROR:
+                        // Alert failure
+                        showMessageDialog("Error", String.format(Locale.getDefault(),
+                                "Failed to download from %s",
+                                intent.getStringExtra(MyDownloadService.EXTRA_DOWNLOAD_PATH)));
+                        break;
+                    //case MyUploadService.UPLOAD_COMPLETED:
+                    //case MyUploadService.UPLOAD_ERROR:
+                    //    onUploadResultIntent(intent);
+                    //    break;
+                }
+            }
+        };
+
+
 /*
         warningNoData = findViewById(R.id.tvDatabaseUserNoData);
         userId = findViewById(R.id.etDatabaseUserUserId);
@@ -73,26 +132,14 @@ public class DownloadImageActivity extends AppCompatActivity {
         //mDatabaseReference = FirebaseDatabase.getInstance().getReference();
 
         Intent intent = getIntent();
-        receiveUserId = intent.getStringExtra("UID");
-        if (receiveUserId != null) {
-            Log.i(TAG, "selectedUid: " + receiveUserId);
+        selectedImageFileReference = intent.getStringExtra("FILEREFERENCE");
+        mFileName = intent.getStringExtra("FILENAME");
+        //mFileUri = intent.getStringExtra("FILEURI");
+        if (selectedImageFileReference != null) {
+            Log.i(TAG, "selectedImageFileReference: " + selectedImageFileReference);
+            selectedImage.setText(selectedImageFileReference + "\nURI :" + intent.getStringExtra("FILEURI"));
+            beginDownload();
         }
-        receiveUserEmail = intent.getStringExtra("EMAIL");
-        if (receiveUserEmail != null) {
-            Log.i(TAG, "selectedEmail: " + receiveUserEmail);
-        }
-        receiveUserDisplayName = intent.getStringExtra("DISPLAYNAME");
-        if (receiveUserDisplayName != null) {
-            Log.i(TAG, "selectedDisplayName: " + receiveUserDisplayName);
-        }
-        String receiveUserString = "Email: " + receiveUserEmail;
-        receiveUserString += "\nUID: " + receiveUserId;
-        receiveUserString += "\nDisplay Name: " + receiveUserDisplayName;
-        //receiveUser.setText(receiveUserString);
-        Log.i(TAG, "receiveUser: " + receiveUserString);
-
-        //       Button loadData = findViewById(R.id.btnDatabaseUserLoad);
-        //       Button savaData = findViewById(R.id.btnDatabaseUserSave);
 
         Button selectImage = findViewById(R.id.btnDownloadImageSelectImage);
         Button backToMain = findViewById(R.id.btnDownloadImageToMain);
@@ -103,6 +150,14 @@ public class DownloadImageActivity extends AppCompatActivity {
                 Intent intent = new Intent(DownloadImageActivity.this, ListImagesActivity.class);
                 startActivity(intent);
                 finish();
+            }
+        });
+
+        Button downloadImage = findViewById(R.id.btnDownloadImageDownloadImage);
+        downloadImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.i(TAG, "download image FileReference: " + selectedImageFileReference);
             }
         });
 
@@ -131,7 +186,8 @@ Display Name: klaus.zwang.1934@gmail.com
         edtMessageLayout.setEndIconOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showProgressBar();
+                showProgressBar("send");
+                /*
                 // todo get the real uids, remove these line
                 if (authUserId.equals("VgNGhMth85Y0Szg6FxLMcWkEpmA3")) {
                     receiveUserId = "0QCS5u2UnxYURlbntvVTA6ZTbaO2";
@@ -139,7 +195,7 @@ Display Name: klaus.zwang.1934@gmail.com
                     authUserId = "0QCS5u2UnxYURlbntvVTA6ZTbaO2";
                     receiveUserId = "VgNGhMth85Y0Szg6FxLMcWkEpmA3";
                 }
-
+                */
                 // get the roomId by comparing 2 UID strings
                 String roomId = getRoomId(authUserId, receiveUserId);
                 String messageString = edtMessage.getText().toString();
@@ -192,9 +248,64 @@ Display Name: klaus.zwang.1934@gmail.com
                         Toast.LENGTH_SHORT).show();
             }
         });
+    }
 
+    private void beginDownload() {
+        Log.i(TAG, "begin download for URI: " + mFileName);
+        // Get path
+        //String path = "photos/" + mFileUri.getLastPathSegment();
+        String path = "photos/" + mFileName;
+
+        // Kick off MyDownloadService to download the file
+        Intent intent = new Intent(this, MyDownloadService.class)
+                .putExtra(MyDownloadService.EXTRA_DOWNLOAD_PATH, path)
+                .setAction(MyDownloadService.ACTION_DOWNLOAD);
+        startService(intent);
+
+        // Show loading spinner
+        showProgressBar(getString(R.string.progress_downloading));
+    }
+
+    @Override
+    public void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
 
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateUI(mAuth.getCurrentUser());
+
+        // Register receiver for uploads and downloads
+        LocalBroadcastManager manager = LocalBroadcastManager.getInstance(this);
+        manager.registerReceiver(mBroadcastReceiver, MyDownloadService.getIntentFilter());
+        manager.registerReceiver(mBroadcastReceiver, MyUploadService.getIntentFilter());
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // Unregister download receiver
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle out) {
+        super.onSaveInstanceState(out);
+        out.putParcelable(KEY_FILE_URI, mFileUri);
+        out.putParcelable(KEY_DOWNLOAD_URL, mDownloadUrl);
+    }
+
+    private void showMessageDialog(String title, String message) {
+        AlertDialog ad = new AlertDialog.Builder(this)
+                .setTitle(title)
+                .setMessage(message)
+                .create();
+        ad.show();
+    }
+
 
     /**
      * service methods
@@ -210,18 +321,6 @@ Display Name: klaus.zwang.1934@gmail.com
     /**
      * basic
      */
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser != null){
-            reload();
-        } else {
-            signedInUser.setText("no user is signed in");
-        }
-    }
 
     private void reload() {
         Objects.requireNonNull(mAuth.getCurrentUser()).reload().addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -264,16 +363,14 @@ Display Name: klaus.zwang.1934@gmail.com
         }
     }
 
-    public void showProgressBar() {
-        if (progressBar != null) {
-            progressBar.setVisibility(View.VISIBLE);
-        }
+    private void showProgressBar(String caption) {
+        //binding.caption.setText(caption);
+        progressBar.setVisibility(View.VISIBLE);
     }
 
-    public void hideProgressBar() {
-        if (progressBar != null) {
-            progressBar.setVisibility(View.INVISIBLE);
-        }
+    private void hideProgressBar() {
+        //binding.caption.setText("");
+        progressBar.setVisibility(View.INVISIBLE);
     }
 
 }
