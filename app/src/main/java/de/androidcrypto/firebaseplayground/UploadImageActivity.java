@@ -134,6 +134,7 @@ public class UploadImageActivity extends AppCompatActivity {
     }
 
     private void uploadImage(Uri selectedImageFileUri, String selectedImageFileName) {
+        uploadImage.setEnabled(false);
         String filenameFull = IMAGE_STORAGE_FOLDER + "/" + selectedImageFileName;
         Log.i(TAG, "uploadImage to " + filenameFull);
         // Create a reference to 'images/mountains.jpg'
