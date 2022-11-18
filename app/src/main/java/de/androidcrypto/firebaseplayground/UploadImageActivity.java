@@ -1,11 +1,7 @@
 package de.androidcrypto.firebaseplayground;
 
-import static de.androidcrypto.firebaseplayground.MyUploadService.ACTION_UPLOAD;
-import static de.androidcrypto.firebaseplayground.MyUploadService.EXTRA_FILE_URI;
-
-import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
-import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -23,21 +19,26 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageMetadata;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
-import java.util.Locale;
 import java.util.Objects;
 
 public class UploadImageActivity extends AppCompatActivity {
 
-    com.google.android.material.textfield.TextInputEditText signedInUser, receiveUser;
-    com.google.android.material.textfield.TextInputEditText edtMessage, edtLinkToImage, userPhotoUrl, userPublicKey, userName;
-    com.google.android.material.textfield.TextInputLayout edtMessageLayout;
+    com.google.android.material.textfield.TextInputEditText signedInUser;
+    com.google.android.material.textfield.TextInputEditText edtLinkToImage;
+
+    Button uploadImage;
     TextView warningNoData;
 
     static final String TAG = "UploadImage";
@@ -45,16 +46,14 @@ public class UploadImageActivity extends AppCompatActivity {
     private static String authUserId = "", authUserEmail, authDisplayName, authPhotoUrl;
     private static String receiveUserId = "", receiveUserEmail = "", receiveUserDisplayName = "";
 
-
-
-    private static final String KEY_FILE_URI = "key_file_uri";
-    private static final String KEY_DOWNLOAD_URL = "key_download_url";
-
-    private BroadcastReceiver mBroadcastReceiver;
     private FirebaseAuth mAuth;
+    private FirebaseStorage mStorage;
+    final static String IMAGE_STORAGE_FOLDER = "photos";
+    private UploadTask uploadTask;
 
-    private Uri mDownloadUrl = null;
-    private Uri mFileUri = null;
+    //private Uri mDownloadUrl = null;
+    private Uri selectedImageFileUri = null;
+    private String selectedImageFileName = null;
     private ActivityResultLauncher<String[]> intentLauncher;
 
     ProgressBar progressBar;
@@ -65,74 +64,34 @@ public class UploadImageActivity extends AppCompatActivity {
         setContentView(R.layout.activity_upload_image);
 
         signedInUser = findViewById(R.id.etUploadImageSignedInUser);
-        receiveUser = findViewById(R.id.etUploadImageReceiveUser);
         progressBar = findViewById(R.id.pbUploadImage);
-
-        edtMessageLayout = findViewById(R.id.etUploadImageMessageLayout);
-        edtMessage = findViewById(R.id.etUploadImageMessage);
         edtLinkToImage = findViewById(R.id.etUploadImageLinkToImage);
-/*
-        warningNoData = findViewById(R.id.tvDatabaseUserNoData);
-        userId = findViewById(R.id.etDatabaseUserUserId);
-        userEmail = findViewById(R.id.etDatabaseUserUserEmail);
-        userPhotoUrl = findViewById(R.id.etDatabaseUserPhotoUrl);
-        userPublicKey = findViewById(R.id.etDatabaseUserPublicKey);
-        userName = findViewById(R.id.etDatabaseUserUserName);
-*/
+
         // don't show the keyboard on startUp
         //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
         // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
-
-        // Restore instance state
-        if (savedInstanceState != null) {
-            mFileUri = savedInstanceState.getParcelable(KEY_FILE_URI);
-            mDownloadUrl = savedInstanceState.getParcelable(KEY_DOWNLOAD_URL);
-        }
-        onNewIntent(getIntent());
+        // initialize Firebase Storage
+        mStorage = FirebaseStorage.getInstance();
 
         intentLauncher = registerForActivityResult(
                 new ActivityResultContracts.OpenDocument(), fileUri -> {
+                    hideProgressBar();
                     if (fileUri != null) {
-                        Log.i(TAG, "intentLauncher with URI: " + fileUri.toString());
-                        uploadFromUri(fileUri);
+                        selectedImageFileUri = fileUri;
+                        Log.i(TAG, "intentLauncher with URI: " + selectedImageFileUri.toString());
+
+                        // try to get a filename from that uri
+                        selectedImageFileName = queryNameFromUri(this.getContentResolver(), selectedImageFileUri);
+                        edtLinkToImage.setText("URI: " + selectedImageFileUri.toString()
+                                + "\nFilename: " + selectedImageFileName);
+                        //uploadFromUri(fileUri);
+                        uploadImage.setEnabled(true);
                     } else {
                         Log.w(TAG, "File URI is null");
                     }
                 });
-
-        // Local broadcast receiver
-        mBroadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                Log.d(TAG, "onReceive:" + intent);
-                hideProgressBar();
-
-                switch (intent.getAction()) {
-                    case MyDownloadService.DOWNLOAD_COMPLETED:
-                        // Get number of bytes downloaded
-                        long numBytes = intent.getLongExtra(MyDownloadService.EXTRA_BYTES_DOWNLOADED, 0);
-
-                        // Alert success
-                        showMessageDialog(getString(R.string.success), String.format(Locale.getDefault(),
-                                "%d bytes downloaded from %s",
-                                numBytes,
-                                intent.getStringExtra(MyDownloadService.EXTRA_DOWNLOAD_PATH)));
-                        break;
-                    case MyDownloadService.DOWNLOAD_ERROR:
-                        // Alert failure
-                        showMessageDialog("Error", String.format(Locale.getDefault(),
-                                "Failed to download from %s",
-                                intent.getStringExtra(MyDownloadService.EXTRA_DOWNLOAD_PATH)));
-                        break;
-                    case MyUploadService.UPLOAD_COMPLETED:
-                    case MyUploadService.UPLOAD_ERROR:
-                        onUploadResultIntent(intent);
-                        break;
-                }
-            }
-        };
 
         // Initialize Firebase Database
         // https://fir-playground-1856e-default-rtdb.europe-west1.firebasedatabase.app/
@@ -141,36 +100,6 @@ public class UploadImageActivity extends AppCompatActivity {
         // the following can be used if the database server location is us
         //mDatabaseReference = FirebaseDatabase.getInstance().getReference();
 
-        // Initialize Firebase Storage
-        //mStorage = FirebaseStorage.getInstance();
-        // gs://fir-playground-1856e.appspot.com
-        //mStorageReference = mStorage.getReference();
-        // Create a child reference
-        // imagesRef now points to "images"
-        //StorageReference imagesReference = mStorageReference.child("images");
-
-        Intent intent = getIntent();
-        receiveUserId = intent.getStringExtra("UID");
-        if (receiveUserId != null) {
-            Log.i(TAG, "selectedUid: " + receiveUserId);
-        }
-        receiveUserEmail = intent.getStringExtra("EMAIL");
-        if (receiveUserEmail != null) {
-            Log.i(TAG, "selectedEmail: " + receiveUserEmail);
-        }
-        receiveUserDisplayName = intent.getStringExtra("DISPLAYNAME");
-        if (receiveUserDisplayName != null) {
-            Log.i(TAG, "selectedDisplayName: " + receiveUserDisplayName);
-        }
-        String receiveUserString = "Email: " + receiveUserEmail;
-        receiveUserString += "\nUID: " + receiveUserId;
-        receiveUserString += "\nDisplay Name: " + receiveUserDisplayName;
-        receiveUser.setText(receiveUserString);
-        Log.i(TAG, "receiveUser: " + receiveUserString);
-
-        //       Button loadData = findViewById(R.id.btnDatabaseUserLoad);
-        //       Button savaData = findViewById(R.id.btnDatabaseUserSave);
-
         Button selectImage = findViewById(R.id.btnUploadImageSelectImage);
         Button backToMain = findViewById(R.id.btnUploadImageToMain);
 
@@ -178,7 +107,7 @@ public class UploadImageActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Log.i(TAG, "select an image from local to store");
-                showProgressBar("uploading");
+                showProgressBar();
                 // Pick an image from storage
                 intentLauncher.launch(new String[]{ "image/*" });
             }
@@ -193,31 +122,54 @@ public class UploadImageActivity extends AppCompatActivity {
             }
         });
 
-/*
-static data:
-authUser:
-Email: michael.telefon08@gmail.com
-UID: VgNGhMth85Y0Szg6FxLMcWkEpmA3
-Display Name: Michael Fehr
-
-receiveUser:
-Email: klaus.zwang.1934@gmail.com
-UID: 0QCS5u2UnxYURlbntvVTA6ZTbaO2
-Display Name: klaus.zwang.1934@gmail.com
- */
-
-        edtMessageLayout.setEndIconOnClickListener(new View.OnClickListener() {
+        uploadImage = findViewById(R.id.btnUploadImageSend);
+        uploadImage.setEnabled(false); // default
+        uploadImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                showProgressBar();
+                uploadImage(selectedImageFileUri, selectedImageFileName);
             }
         });
+    }
 
-        Button send = findViewById(R.id.btnUploadImageSend);
-        send.setOnClickListener(new View.OnClickListener() {
+    private void uploadImage(Uri selectedImageFileUri, String selectedImageFileName) {
+        String filenameFull = IMAGE_STORAGE_FOLDER + "/" + selectedImageFileName;
+        Log.i(TAG, "uploadImage to " + filenameFull);
+        // Create a reference to 'images/mountains.jpg'
+        StorageReference uploadImagesRef = mStorage.getReference().child(filenameFull);
+        uploadTask = uploadImagesRef.putFile(selectedImageFileUri);
+        // Register observers to listen for when the download is done or if it fails
+        uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
-            public void onClick(View view) {
+            public void onFailure(@NonNull Exception exception) {
+                Log.i(TAG, "uploadImage onFailure: " + exception.toString());
+                // Handle unsuccessful uploads
+                System.out.println("*** ERROR: " + exception.toString());
+                hideProgressBar();
+                uploadImage.setEnabled(false);
+                edtLinkToImage.setText("upload failure: " + exception.toString());
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                hideProgressBar();
+                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
+                long bytesTransferred = taskSnapshot.getBytesTransferred();
+                StorageMetadata storageMetadata = taskSnapshot.getMetadata();
+                String contentType = storageMetadata.getContentType();
+                String name = storageMetadata.getName();
+                long sizeBytes = storageMetadata.getSizeBytes();
 
+                System.out.println("*** upload success ***");
+                String uploadInfo = "bytesTransferred: " + bytesTransferred + "\n"
+                + "contentType: " + contentType + "\n"
+                                + "name: " + name + "\n"
+                                + "sizeBytes: " + sizeBytes + "\n";
+                System.out.println(uploadInfo);
+                Log.i(TAG, "upload success\n" + uploadInfo);
+                uploadImage.setEnabled(false);
+                edtLinkToImage.setText("upload success");
             }
         });
     }
@@ -239,25 +191,8 @@ Display Name: klaus.zwang.1934@gmail.com
     }
 
     @Override
-    public void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-
-        // Check if this Activity was launched by clicking on an upload notification
-        if (intent.hasExtra(MyUploadService.EXTRA_DOWNLOAD_URL)) {
-            onUploadResultIntent(intent);
-        }
-    }
-
-    @Override
     public void onStart() {
         super.onStart();
-        updateUIStorage(mAuth.getCurrentUser());
-
-        // Register receiver for uploads and downloads
-        LocalBroadcastManager manager = LocalBroadcastManager.getInstance(this);
-        manager.registerReceiver(mBroadcastReceiver, MyDownloadService.getIntentFilter());
-        manager.registerReceiver(mBroadcastReceiver, MyUploadService.getIntentFilter());
-
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser != null){
@@ -267,85 +202,25 @@ Display Name: klaus.zwang.1934@gmail.com
         }
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-
-        // Unregister download receiver
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle out) {
-        super.onSaveInstanceState(out);
-        out.putParcelable(KEY_FILE_URI, mFileUri);
-        out.putParcelable(KEY_DOWNLOAD_URL, mDownloadUrl);
-        //out.putParcelable(KEY_FILE_NAME, mFileName);
-    }
-
-    private void uploadFromUri(Uri fileUri) {
-        Log.i(TAG, "uploadFromUri:src:" + fileUri.toString());
-
-        // Save the File URI
-        mFileUri = fileUri;
-
-        // Clear the last download, if any
-        updateUIStorage(mAuth.getCurrentUser());
-        mDownloadUrl = null;
-
-        // Start MyUploadService to upload the file, so that the file is uploaded
-        // even if this Activity is killed or put in the background
-        startService(new Intent(this, MyUploadService.class)
-                .putExtra(EXTRA_FILE_URI, fileUri)
-                .setAction(ACTION_UPLOAD));
-
-        // Show loading spinner
-        showProgressBar(getString(R.string.progress_uploading));
-    }
-
-    private void onUploadResultIntent(Intent intent) {
-        // Got a new intent from MyUploadService with a success or failure
-        mDownloadUrl = intent.getParcelableExtra(MyUploadService.EXTRA_DOWNLOAD_URL);
-        mFileUri = intent.getParcelableExtra(EXTRA_FILE_URI);
-
-        updateUIStorage(mAuth.getCurrentUser());
-    }
-
-    private void updateUIStorage(FirebaseUser user) {
-        // Signed in or Signed out
-        if (user != null) {
-            //binding.layoutSignin.setVisibility(View.GONE);
-            //binding.layoutStorage.setVisibility(View.VISIBLE);
-        } else {
-            //binding.layoutSignin.setVisibility(View.VISIBLE);
-            //binding.layoutStorage.setVisibility(View.GONE);
-        }
-
-        // Download URL and Download button
-        if (mDownloadUrl != null) {
-            edtLinkToImage.setText(mDownloadUrl.toString());
-            //binding.layoutDownload.setVisibility(View.VISIBLE);
-        } else {
-            edtLinkToImage.setText(null);
-            //binding.layoutDownload.setVisibility(View.GONE);
-        }
-    }
-
     private void showMessageDialog(String title, String message) {
         AlertDialog ad = new AlertDialog.Builder(this)
                 .setTitle(title)
                 .setMessage(message)
+                .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        // do nothing
+                    }
+                })
                 .create();
         ad.show();
     }
 
-    private void showProgressBar(String caption) {
-        //binding.caption.setText(caption);
+    private void showProgressBar() {
         progressBar.setVisibility(View.VISIBLE);
     }
 
     private void hideProgressBar() {
-        //binding.caption.setText("");
         progressBar.setVisibility(View.INVISIBLE);
     }
 
@@ -375,7 +250,6 @@ Display Name: klaus.zwang.1934@gmail.com
     }
 
     private void updateUI(FirebaseUser user) {
-        //hideProgressBar();
         if (user != null) {
             authUserId = user.getUid();
             authUserEmail = user.getEmail();
