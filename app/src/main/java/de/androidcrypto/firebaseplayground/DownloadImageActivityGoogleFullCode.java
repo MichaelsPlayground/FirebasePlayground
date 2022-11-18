@@ -1,12 +1,10 @@
 package de.androidcrypto.firebaseplayground;
 
-import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -15,7 +13,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,7 +31,7 @@ import java.util.Objects;
 
 import de.androidcrypto.firebaseplayground.models.MessageModel;
 
-public class DownloadImageActivity extends AppCompatActivity {
+public class DownloadImageActivityGoogleFullCode extends AppCompatActivity {
 
     com.google.android.material.textfield.TextInputEditText signedInUser, selectedImage;
     com.google.android.material.textfield.TextInputEditText edtMessage, edtRoomId, userPhotoUrl, userPublicKey, userName;
@@ -51,10 +48,12 @@ public class DownloadImageActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     ProgressBar progressBar;
 
-    private DownloadManager downloadManager = null;
-    private long lastDownload = -1L;
+    private static final String KEY_FILE_URI = "key_file_uri";
+    private static final String KEY_DOWNLOAD_URL = "key_download_url";
+
+    private BroadcastReceiver mBroadcastReceiver;
     private Uri mDownloadUrl = null;
-    private String mFileUriString = null;
+    private Uri mFileUri = null;
     private String mFileName = null;
     private ActivityResultLauncher<String[]> intentLauncher;
 
@@ -71,7 +70,45 @@ public class DownloadImageActivity extends AppCompatActivity {
         edtMessage = findViewById(R.id.etDownloadImageMessage);
         edtRoomId = findViewById(R.id.etDownloadImageRoomId);
 
-        downloadManager = (DownloadManager) this.getSystemService(Context.DOWNLOAD_SERVICE);
+        // Restore instance state
+        if (savedInstanceState != null) {
+            mFileUri = savedInstanceState.getParcelable(KEY_FILE_URI);
+            mDownloadUrl = savedInstanceState.getParcelable(KEY_DOWNLOAD_URL);
+        }
+        onNewIntent(getIntent());
+
+        // Local broadcast receiver
+        mBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.d(TAG, "onReceive:" + intent);
+                hideProgressBar();
+
+                switch (intent.getAction()) {
+                    case MyDownloadService.DOWNLOAD_COMPLETED:
+                        // Get number of bytes downloaded
+                        long numBytes = intent.getLongExtra(MyDownloadService.EXTRA_BYTES_DOWNLOADED, 0);
+
+                        // Alert success
+                        showMessageDialog(getString(R.string.success), String.format(Locale.getDefault(),
+                                "%d bytes downloaded from %s",
+                                numBytes,
+                                intent.getStringExtra(MyDownloadService.EXTRA_DOWNLOAD_PATH)));
+                        break;
+                    case MyDownloadService.DOWNLOAD_ERROR:
+                        // Alert failure
+                        showMessageDialog("Error", String.format(Locale.getDefault(),
+                                "Failed to download from %s",
+                                intent.getStringExtra(MyDownloadService.EXTRA_DOWNLOAD_PATH)));
+                        break;
+                    //case MyUploadService.UPLOAD_COMPLETED:
+                    //case MyUploadService.UPLOAD_ERROR:
+                    //    onUploadResultIntent(intent);
+                    //    break;
+                }
+            }
+        };
+
 
 /*
         warningNoData = findViewById(R.id.tvDatabaseUserNoData);
@@ -96,12 +133,11 @@ public class DownloadImageActivity extends AppCompatActivity {
         Intent intent = getIntent();
         selectedImageFileReference = intent.getStringExtra("FILEREFERENCE");
         mFileName = intent.getStringExtra("FILENAME");
-        mFileUriString = intent.getStringExtra("FILEURI");
+        //mFileUri = intent.getStringExtra("FILEURI");
         if (selectedImageFileReference != null) {
             Log.i(TAG, "selectedImageFileReference: " + selectedImageFileReference);
             selectedImage.setText(selectedImageFileReference + "\nURI :" + intent.getStringExtra("FILEURI"));
-            //beginDownload();
-            downloadUsingDownloadmanager(mFileUriString, "example.jpg");
+            beginDownload();
         }
 
         Button selectImage = findViewById(R.id.btnDownloadImageSelectImage);
@@ -110,7 +146,7 @@ public class DownloadImageActivity extends AppCompatActivity {
         selectImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(DownloadImageActivity.this, ListImagesActivity.class);
+                Intent intent = new Intent(DownloadImageActivityGoogleFullCode.this, ListImagesActivity.class);
                 startActivity(intent);
                 finish();
             }
@@ -127,7 +163,7 @@ public class DownloadImageActivity extends AppCompatActivity {
         backToMain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(DownloadImageActivity.this, MainActivity.class);
+                Intent intent = new Intent(DownloadImageActivityGoogleFullCode.this, MainActivity.class);
                 startActivity(intent);
                 finish();
             }
@@ -213,25 +249,6 @@ Display Name: klaus.zwang.1934@gmail.com
         });
     }
 
-    private void downloadUsingDownloadmanager(String downloadUrl, String downloadFilename) {
-        Log.i(TAG, "startDownload");
-        Uri uri = Uri.parse(downloadUrl);
-
-        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                .mkdirs();
-
-        DownloadManager.Request req = new DownloadManager.Request(uri);
-
-        req.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI
-                        | DownloadManager.Request.NETWORK_MOBILE)
-                .setAllowedOverRoaming(false)
-                .setTitle(downloadFilename)
-                .setDescription("Download is running...")
-                .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
-                        downloadFilename);
-        lastDownload = downloadManager.enqueue(req);
-    }
-
     private void beginDownload() {
         Log.i(TAG, "begin download for URI: " + mFileName);
         // Get path
@@ -249,19 +266,35 @@ Display Name: klaus.zwang.1934@gmail.com
     }
 
     @Override
+    public void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
         updateUI(mAuth.getCurrentUser());
+
+        // Register receiver for uploads and downloads
+        LocalBroadcastManager manager = LocalBroadcastManager.getInstance(this);
+        manager.registerReceiver(mBroadcastReceiver, MyDownloadService.getIntentFilter());
+        manager.registerReceiver(mBroadcastReceiver, MyUploadService.getIntentFilter());
     }
 
     @Override
     public void onStop() {
         super.onStop();
+
+        // Unregister download receiver
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
     }
 
     @Override
     public void onSaveInstanceState(Bundle out) {
         super.onSaveInstanceState(out);
+        out.putParcelable(KEY_FILE_URI, mFileUri);
+        out.putParcelable(KEY_DOWNLOAD_URL, mDownloadUrl);
     }
 
     private void showMessageDialog(String title, String message) {

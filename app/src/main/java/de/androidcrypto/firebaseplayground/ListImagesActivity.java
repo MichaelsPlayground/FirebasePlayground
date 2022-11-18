@@ -114,20 +114,11 @@ public class ListImagesActivity extends AppCompatActivity {
                             }
                         });
                         imagesListView.setAdapter(arrayAdapter);
-
-                //List<String> arrayList = new ArrayList<>();
-                //List<String> uidList = new ArrayList<>();
-                //List<String> emailList = new ArrayList<>();
-                //List<String> displayNameList = new ArrayList<>();
-
                 hideProgressBar();
 
                 imagesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                        //String uidSelected = uidList.get(position);
-                        //String emailSelected = emailList.get(position);
-                        //String displayNameSelected = displayNameList.get(position);
 
                         StorageReference storageReference = storageReferenceList.get(position);
                         storageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
