@@ -99,6 +99,18 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button updateUserImage = findViewById(R.id.btnMainUpdateUserImage);
+        updateUserImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "show the user profile");
+                Intent intent = new Intent(MainActivity.this, UpdateUserImageActivity.class);
+                //Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(intent);
+                //finish();
+            }
+        });
+
         Button sendMessage = findViewById(R.id.btnMainSendMessage);
         sendMessage.setOnClickListener(new View.OnClickListener() {
             @Override
