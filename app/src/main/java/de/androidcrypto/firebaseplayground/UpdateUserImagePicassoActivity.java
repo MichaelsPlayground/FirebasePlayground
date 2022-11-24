@@ -1,9 +1,5 @@
 package de.androidcrypto.firebaseplayground;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,6 +9,10 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -27,7 +27,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.mikhaellopez.circularimageview.CircularImageView;
-//import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -35,13 +35,10 @@ import java.util.Objects;
 
 import de.androidcrypto.firebaseplayground.models.UserModel;
 
-public class UpdateUserImageActivity extends AppCompatActivity {
+public class UpdateUserImagePicassoActivity extends AppCompatActivity {
 
     /*
-    This class uses Glide to download and show the image
-    https://egemenhamutcu.medium.com/displaying-images-from-firebase-storage-using-glide-for-kotlin-projects-3e4950f6c103
-    https://itecnote.com/tecnote/java-using-firebase-storage-image-with-glide/
-    https://firebaseopensource.com/projects/firebase/firebaseui-android/storage/readme
+    This class uses Picasso to download and show the image
      */
 
     private CircularImageView userProfileImage;
@@ -129,14 +126,7 @@ public class UpdateUserImageActivity extends AppCompatActivity {
                                     userPublicKey.setText(userModel.getUserPublicKey());
                                     String photoUrl = userModel.getUserPhotoUrl();
                                     userPhotoUrl.setText(photoUrl);
-                                    // todo change the code here:
-                                    //Picasso.get().load(photoUrl).into(userProfileImage);
-                                    // Download directly from StorageReference using Glide
-                                    // (See MyAppGlideModule for Loader registration)
-                                    GlideApp.with(view.getContext())
-                                            .load(photoUrl)
-                                            .into(userProfileImage);
-
+                                    Picasso.get().load(photoUrl).into(userProfileImage);
                                 }
                             }
                         }
@@ -193,7 +183,7 @@ public class UpdateUserImageActivity extends AppCompatActivity {
         backToMain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(UpdateUserImageActivity.this, MainActivity.class);
+                Intent intent = new Intent(UpdateUserImagePicassoActivity.this, MainActivity.class);
                 startActivity(intent);
                 finish();
             }
@@ -235,19 +225,13 @@ public class UpdateUserImageActivity extends AppCompatActivity {
                                                 if(task.isSuccessful())
                                                 {
                                                     Log.i(TAG, "downloadUrl: " + downloadUrl);
-                                                    Toast.makeText(UpdateUserImageActivity.this, "Image saved in database successfuly", Toast.LENGTH_SHORT).show();
+                                                    Toast.makeText(UpdateUserImagePicassoActivity.this, "Image saved in database successfuly", Toast.LENGTH_SHORT).show();
                                                     userPhotoUrl.setText(downloadUrl);
-                                                    // todo reload changed image
-                                                    // Download directly from StorageReference using Glide
-                                                    // (See MyAppGlideModule for Loader registration)
-                                                    GlideApp.with(getApplicationContext())
-                                                            .load(downloadUrl)
-                                                            .into(userProfileImage);
                                                 }
                                                 else
                                                 {
                                                     String message = task.getException().toString();
-                                                    Toast.makeText(UpdateUserImageActivity.this, "Error: " + message,Toast.LENGTH_SHORT).show();
+                                                    Toast.makeText(UpdateUserImagePicassoActivity.this, "Error: " + message,Toast.LENGTH_SHORT).show();
                                                 }
                                             }
                                         });
