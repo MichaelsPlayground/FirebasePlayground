@@ -169,6 +169,17 @@
                     tools:ignore="KeyboardInaccessibleWidget" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:text="click on the image to change the profile image"
+                android:textAlignment="center"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
             <com.mikhaellopez.circularimageview.CircularImageView
                 android:id="@+id/ivUserProfileImage"
                 android:layout_width="250dp"

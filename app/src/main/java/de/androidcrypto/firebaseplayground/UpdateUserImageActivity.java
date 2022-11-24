@@ -37,6 +37,10 @@ import de.androidcrypto.firebaseplayground.models.UserModel;
 
 public class UpdateUserImageActivity extends AppCompatActivity {
 
+    /*
+    This class uses Picasso to download and show the image
+     */
+
     private CircularImageView userProfileImage;
     com.google.android.material.textfield.TextInputEditText signedInUser;
     com.google.android.material.textfield.TextInputEditText userId, userEmail, userPhotoUrl, userPublicKey, userName;
@@ -222,6 +226,7 @@ public class UpdateUserImageActivity extends AppCompatActivity {
                                                 {
                                                     Log.i(TAG, "downloadUrl: " + downloadUrl);
                                                     Toast.makeText(UpdateUserImageActivity.this, "Image saved in database successfuly", Toast.LENGTH_SHORT).show();
+                                                    userPhotoUrl.setText(downloadUrl);
                                                 }
                                                 else
                                                 {
