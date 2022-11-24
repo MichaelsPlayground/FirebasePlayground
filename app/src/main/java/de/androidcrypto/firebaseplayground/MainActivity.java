@@ -88,6 +88,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button updateAuthUserProfile = findViewById(R.id.btnMainUpdateAuthUserProfile);
+        updateAuthUserProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "updatethe auth user profile");
+                Intent intent = new Intent(MainActivity.this, UpdateAuthUserProfileActivity.class);
+                startActivity(intent);
+                //finish();
+            }
+        });
+
         Button databaseUserProfile = findViewById(R.id.btnMainDatabaseUser);
         databaseUserProfile.setOnClickListener(new View.OnClickListener() {
             @Override
