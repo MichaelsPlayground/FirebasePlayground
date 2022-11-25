@@ -68,7 +68,7 @@ public class DatabaseUserActivity extends AppCompatActivity {
         //mDatabase = FirebaseDatabase.getInstance().getReference();
 
         Button loadData = findViewById(R.id.btnDatabaseUserLoad);
-        Button savaData = findViewById(R.id.btnDatabaseUserSave);
+        Button saveData = findViewById(R.id.btnDatabaseUserSave);
         Button backToMain = findViewById(R.id.btnDatabaseUserToMain);
 
         loadData.setOnClickListener(new View.OnClickListener() {
@@ -119,7 +119,7 @@ public class DatabaseUserActivity extends AppCompatActivity {
             }
         });
 
-        savaData.setOnClickListener(new View.OnClickListener() {
+        saveData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showProgressBar();
