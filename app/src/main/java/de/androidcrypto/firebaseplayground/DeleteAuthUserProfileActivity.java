@@ -17,6 +17,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
@@ -25,6 +26,7 @@ import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GetTokenResult;
+import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.UserInfo;
 import com.google.firebase.auth.UserProfileChangeRequest;
 
@@ -44,6 +46,8 @@ public class DeleteAuthUserProfileActivity extends AppCompatActivity {
     static final String TAG = "DeleteAuthUserProfile";
     // get the data from auth
     private static String authUserId = "", authUserEmail = "", authDisplayName = "", authPhotoUrl = "";
+    private String providerId = ""; // eg password or google.com
+    //private String googleIdToken = "";
 
     private FirebaseAuth mAuth;
     ProgressBar progressBar;
@@ -72,7 +76,7 @@ public class DeleteAuthUserProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Log.i(TAG, "delete the current user");
-                // avoid deleting accounton accident
+                // avoid deleting account on accident
                 AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
                 builder.setTitle("You are going to delete the current user");
                 builder.setMessage("Are you sure ?");
@@ -81,43 +85,29 @@ public class DeleteAuthUserProfileActivity extends AppCompatActivity {
                         // delete the user
                         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                         if (user == null) return;
-
-                        // get the provider information
-                        String providerId = user.getProviderId();
-                        String tenantId = user.getTenantId();
-
-                        // get provider that was used for sign in
-                        // https://stackoverflow.com/a/66118499/8166854
-                        // So, if (strProvider.equals("password")) then the authentication is by Email + Password,
-                        // if (strProvider.equals("google.com")) then the authentication is via Google,
-                        // if (strProvider.equals("facebook.com")) then the authentication is via Facebook.
-                        mAuth.getAccessToken(false).addOnSuccessListener(new OnSuccessListener<GetTokenResult>() {
-                            @Override
-                            public void onSuccess(GetTokenResult getTokenResult) {
-                                String strProvider = getTokenResult.getSignInProvider();
-                                System.out.println("*** providerId: " + strProvider);
+                        AuthCredential credential;
+                        if (providerId.equals("password")) {
+                            String oldPassword = oldUserPassword.getText().toString();
+                            if (oldPassword.length() < 6) {
+                                Toast.makeText(getApplicationContext(),
+                                        "the old user password is too short, please change",
+                                        Toast.LENGTH_SHORT).show();
+                                //runChangePassword.setVisibility(View.GONE);
+                                return;
                             }
-                        });
+                            credential = EmailAuthProvider
+                                    .getCredential(authUserEmail, oldPassword);
 
 
-                        System.out.println("*** providerId: " + providerId);
-                        System.out.println("*** tenantId: " + tenantId);
+                        // workflow for
 
-                        String oldPassword = oldUserPassword.getText().toString();
-                        if (oldPassword.length() < 6) {
-                            Toast.makeText(getApplicationContext(),
-                                    "the old user password is too short, please change",
-                                    Toast.LENGTH_SHORT).show();
-                            //runChangePassword.setVisibility(View.GONE);
-                            return;
-                        }
+
 
                         // Get auth credentials from the user for re-authentication. The example below shows
                         // email and password credentials but there are multiple possible providers,
                         // such as GoogleAuthProvider or FacebookAuthProvider.
 
-                        AuthCredential credential = EmailAuthProvider
-                                .getCredential(authUserEmail, oldPassword);
+
                         // Prompt the user to re-provide their sign-in credentials
                         user.reauthenticate(credential)
                                 .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -154,6 +144,39 @@ public class DeleteAuthUserProfileActivity extends AppCompatActivity {
                                         Log.i(TAG, "user re-authenticated");
                                     }
                                 });
+                        } else {
+                            Log.i(TAG, "user is signed in with Google");
+                            // the only other auth provider is google.com in this example
+                            // delete the user immediately
+                            user.delete()
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.e(TAG, "execption on deletion: " + e);
+                                        }
+                                    })
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()) {
+                                                oldUserPassword.setText("");
+                                                Log.i(TAG, "user account deleted");
+                                                signedInUser.setText("the user was deleted");
+                                                String snackbarInfo = "the user account was deleted. " +
+                                                        "This playground does NOT delete in database and storage units !";
+                                                Snackbar snackbar = Snackbar
+                                                        .make(view, snackbarInfo, Snackbar.LENGTH_LONG);
+                                                snackbar.show();
+                                            } else {
+                                                Log.e(TAG, "error on deleting the users auth profile");
+                                                Toast.makeText(getApplicationContext(),
+                                                        "error on deleting the users auth profile",
+                                                        Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                    });
+
+                        }
                         dialog.dismiss();
                     }
                 });
@@ -187,9 +210,53 @@ public class DeleteAuthUserProfileActivity extends AppCompatActivity {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
             reload();
+            // get the providerId
+            // get provider that was used for sign in
+            // https://stackoverflow.com/a/66118499/8166854
+            // So, if (strProvider.equals("password")) then the authentication is by Email + Password,
+            // if (strProvider.equals("google.com")) then the authentication is via Google,
+            // if (strProvider.equals("facebook.com")) then the authentication is via Facebook.
+            mAuth.getAccessToken(false).addOnSuccessListener(new OnSuccessListener<GetTokenResult>() {
+                @Override
+                public void onSuccess(GetTokenResult getTokenResult) {
+                    providerId = getTokenResult.getSignInProvider();
+                    if (providerId.equals("password")) {
+                        oldUserPasswordLayout.setVisibility(View.VISIBLE);
+                    } else {
+//                        GetGoogleIdToken getGoogleIdToken = new GetGoogleIdToken(getApplicationContext());
+//                        googleIdToken = getGoogleIdToken.doInBackground();
+//                        System.out.println("*** googleId token: " + googleIdToken.toString());
+                        oldUserPasswordLayout.setVisibility(View.GONE);
+                    }
+                    Log.i(TAG, "providerId: " + providerId);
+                }
+            });
         } else {
             signedInUser.setText("no user is signed in");
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // get the providerId
+        // get provider that was used for sign in
+        // https://stackoverflow.com/a/66118499/8166854
+        // So, if (strProvider.equals("password")) then the authentication is by Email + Password,
+        // if (strProvider.equals("google.com")) then the authentication is via Google,
+        // if (strProvider.equals("facebook.com")) then the authentication is via Facebook.
+        mAuth.getAccessToken(false).addOnSuccessListener(new OnSuccessListener<GetTokenResult>() {
+            @Override
+            public void onSuccess(GetTokenResult getTokenResult) {
+                providerId = getTokenResult.getSignInProvider();
+                if (providerId.equals("password")) {
+                    oldUserPasswordLayout.setVisibility(View.VISIBLE);
+                } else {
+                    oldUserPasswordLayout.setVisibility(View.GONE);
+                }
+                Log.i(TAG, "providerId: " + providerId);
+            }
+        });
     }
 
     private void reload() {

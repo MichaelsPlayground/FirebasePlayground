@@ -103,6 +103,19 @@
                     tools:ignore="KeyboardInaccessibleWidget" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <TextView
+                android:id="@+id/tvtDeleteAuthUserProfileReauthenticationError"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:background="@color/red_300"
+                android:text="You are trying to delete a user from Auth database but the deletion requires a fresh login. Push the button below to reauthenticate the user and repeat the deletion."
+                android:textAlignment="center"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
             <Button
                 android:id="@+id/btnDeleteAuthUserProfileDeleteUser"
                 android:layout_width="match_parent"
