@@ -97,7 +97,7 @@
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
                     android:inputType="textVisiblePassword"
-                    android:text=""
+                    android:text="123456"
                     android:textSize="18sp"
                     android:visibility="visible"
                     tools:ignore="KeyboardInaccessibleWidget" />

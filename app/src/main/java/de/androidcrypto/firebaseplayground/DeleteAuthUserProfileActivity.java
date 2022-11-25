@@ -17,14 +17,18 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GetTokenResult;
+import com.google.firebase.auth.UserInfo;
 import com.google.firebase.auth.UserProfileChangeRequest;
 
+import java.util.List;
 import java.util.Objects;
 
 public class DeleteAuthUserProfileActivity extends AppCompatActivity {
@@ -77,6 +81,28 @@ public class DeleteAuthUserProfileActivity extends AppCompatActivity {
                         // delete the user
                         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                         if (user == null) return;
+
+                        // get the provider information
+                        String providerId = user.getProviderId();
+                        String tenantId = user.getTenantId();
+
+                        // get provider that was used for sign in
+                        // https://stackoverflow.com/a/66118499/8166854
+                        // So, if (strProvider.equals("password")) then the authentication is by Email + Password,
+                        // if (strProvider.equals("google.com")) then the authentication is via Google,
+                        // if (strProvider.equals("facebook.com")) then the authentication is via Facebook.
+                        mAuth.getAccessToken(false).addOnSuccessListener(new OnSuccessListener<GetTokenResult>() {
+                            @Override
+                            public void onSuccess(GetTokenResult getTokenResult) {
+                                String strProvider = getTokenResult.getSignInProvider();
+                                System.out.println("*** providerId: " + strProvider);
+                            }
+                        });
+
+
+                        System.out.println("*** providerId: " + providerId);
+                        System.out.println("*** tenantId: " + tenantId);
+
                         String oldPassword = oldUserPassword.getText().toString();
                         if (oldPassword.length() < 6) {
                             Toast.makeText(getApplicationContext(),
@@ -89,6 +115,7 @@ public class DeleteAuthUserProfileActivity extends AppCompatActivity {
                         // Get auth credentials from the user for re-authentication. The example below shows
                         // email and password credentials but there are multiple possible providers,
                         // such as GoogleAuthProvider or FacebookAuthProvider.
+
                         AuthCredential credential = EmailAuthProvider
                                 .getCredential(authUserEmail, oldPassword);
                         // Prompt the user to re-provide their sign-in credentials
