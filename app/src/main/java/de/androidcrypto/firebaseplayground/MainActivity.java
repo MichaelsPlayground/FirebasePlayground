@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
         signUpWithEmailAndPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.i(TAG, "sign up a user with email and password");
                 Intent intent = new Intent(MainActivity.this, SignUpEmailPasswordActivity.class);
                 startActivity(intent);
                 //finish();
@@ -62,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
         signInWithEmailAndPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.i(TAG, "sign in a user with email and password");
                 Intent intent = new Intent(MainActivity.this, SignInEmailPasswordActivity.class);
                 startActivity(intent);
                 //finish();
@@ -72,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
         signInGoogle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.i(TAG, "sign in a user with a Google account");
                 Intent intent = new Intent(MainActivity.this, SignInGoogleActivity.class);
                 startActivity(intent);
                 //finish();
@@ -82,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
         signOut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d(TAG, "sign out the current user");
+                Log.i(TAG, "sign out the current user");
                 mAuth.signOut();
                 signedInUser.setText(null);
             }
@@ -92,8 +95,30 @@ public class MainActivity extends AppCompatActivity {
         updateAuthUserProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d(TAG, "updatethe auth user profile");
+                Log.i(TAG, "update the auth user profile");
                 Intent intent = new Intent(MainActivity.this, UpdateAuthUserProfileActivity.class);
+                startActivity(intent);
+                //finish();
+            }
+        });
+
+        Button changeAuthUserPassword = findViewById(R.id.btnMainChangeAuthUserPassword);
+        changeAuthUserPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.i(TAG, " change the auth user password");
+                Intent intent = new Intent(MainActivity.this, ChangeAuthUserPasswordActivity.class);
+                startActivity(intent);
+                //finish();
+            }
+        });
+
+        Button deleteAuthUserProfile = findViewById(R.id.btnMainDeleteAuthUserProfile);
+        deleteAuthUserProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.i(TAG, " delete the auth user profile");
+                Intent intent = new Intent(MainActivity.this, DeleteAuthUserProfileActivity.class);
                 startActivity(intent);
                 //finish();
             }
@@ -103,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
         databaseUserProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d(TAG, "show the user profile");
+                Log.i(TAG, "show the user profile");
                 Intent intent = new Intent(MainActivity.this, DatabaseUserActivity.class);
                 startActivity(intent);
                 //finish();
@@ -114,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
         updateUserImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d(TAG, "show the user profile");
+                Log.i(TAG, "show the user profile");
                 Intent intent = new Intent(MainActivity.this, UpdateUserImageActivity.class);
                 //Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivity(intent);
@@ -126,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
         sendMessage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d(TAG, "send a message to another user");
+                Log.i(TAG, "send a message to another user");
                 Intent intent = new Intent(MainActivity.this, SendMessageActivity.class);
                 startActivity(intent);
                 //finish();
@@ -137,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
         listMessages.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d(TAG, "list messages on database");
+                Log.i(TAG, "list messages on database");
                 Intent intent = new Intent(MainActivity.this, ListMessagesActivity.class);
                 startActivity(intent);
                 //finish();
@@ -148,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
         uploadImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d(TAG, "upload an image to Storage");
+                Log.i(TAG, "upload an image to Storage");
                 Intent intent = new Intent(MainActivity.this, UploadImageActivity.class);
                 startActivity(intent);
                 //finish();
@@ -159,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
         listImages.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d(TAG, "list images on storage");
+                Log.i(TAG, "list images on storage");
                 Intent intent = new Intent(MainActivity.this, ListImagesActivity.class);
                 startActivity(intent);
                 //finish();
@@ -170,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
         downloadImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d(TAG, "download an image from Storage");
+                Log.i(TAG, "download an image from Storage");
                 Intent intent = new Intent(MainActivity.this, DownloadImageActivity.class);
                 startActivity(intent);
                 //finish();
@@ -181,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
         listUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d(TAG, "list user on database");
+                Log.i(TAG, "list user on database");
                 Intent intent = new Intent(MainActivity.this, ListUserActivity.class);
                 startActivity(intent);
                 //finish();
@@ -195,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
         sendNotification.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d(TAG, "send notification");
+                Log.i(TAG, "send notification");
                 Intent intent = new Intent(MainActivity.this, SendNotificationActivity.class);
                 startActivity(intent);
                 //finish();

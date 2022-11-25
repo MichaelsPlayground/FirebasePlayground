@@ -1,8 +1,10 @@
 package de.androidcrypto.firebaseplayground;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -18,7 +20,10 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
@@ -37,6 +42,8 @@ public class UpdateAuthUserProfileActivity extends AppCompatActivity {
 
     com.google.android.material.textfield.TextInputEditText signedInUser;
     com.google.android.material.textfield.TextInputEditText userId, userEmail, userPhotoUrl, userName;
+    com.google.android.material.textfield.TextInputLayout oldUserPasswordLayout, newUserPasswordLayout;
+    com.google.android.material.textfield.TextInputEditText oldUserPassword, newUserPassword;
     TextView warningNoData;
 
     static final String TAG = "UpdateAuthUserProfile";
@@ -59,9 +66,13 @@ public class UpdateAuthUserProfileActivity extends AppCompatActivity {
         userEmail = findViewById(R.id.etUpdateAuthUserProfileUserEmail);
         userPhotoUrl = findViewById(R.id.etUpdateAuthUserProfilePhotoUrl);
         userName = findViewById(R.id.etUpdateAuthUserProfileUserName);
+        oldUserPassword = findViewById(R.id.etUpdateAuthUserProfileOldPassword);
+        oldUserPasswordLayout = findViewById(R.id.etUpdateAuthUserProfileOldPasswordLayout);
+        newUserPassword = findViewById(R.id.etUpdateAuthUserProfileNewPassword);
+        newUserPasswordLayout = findViewById(R.id.etUpdateAuthUserProfileNewPasswordLayout);
 
         // don't show the keyboard on startUp
-        //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
         // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
@@ -154,6 +165,116 @@ public class UpdateAuthUserProfileActivity extends AppCompatActivity {
             }
         });
 
+        Button sendEmailAddressVerificationMail = findViewById(R.id.btnUpdateAuthUserProfileSendVerificationMail);
+        sendEmailAddressVerificationMail.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.i(TAG, "send an email to verify the email address");
+                FirebaseAuth auth = FirebaseAuth.getInstance();
+                FirebaseUser user = auth.getCurrentUser();
+                if (user != null) {
+                    if (user.isEmailVerified()) {
+                        Log.i(TAG, "user email address is already verified");
+                        Toast.makeText(getApplicationContext(),
+                                "user email is already verified, no email is send",
+                                Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    // email address is not verified yet
+                    user.sendEmailVerification()
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        Log.i(TAG, "verification email sent");
+                                        String snackbarInfo = "a verification email is sent to " +
+                                                user.getEmail() + ". Please click on the link in the email to verifiy.";
+                                        Snackbar snackbar = Snackbar
+                                                .make(view, snackbarInfo, Snackbar.LENGTH_LONG);
+                                        snackbar.show();
+                                    }
+                                }
+                            });
+                }
+            }
+        });
+
+        // this is the inner button to change the password
+        Button runChangePassword = findViewById(R.id.btnUpdateAuthUserProfileRunChangePassword);
+
+        Button changePassword = findViewById(R.id.btnUpdateAuthUserProfileChangePassword);
+        changePassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.i(TAG, "change the email password for the current user");
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                if (user == null) return;
+                // todo make button and edittext visible or not
+                oldUserPasswordLayout.setVisibility(View.VISIBLE);
+                newUserPasswordLayout.setVisibility(View.VISIBLE);
+                runChangePassword.setVisibility(View.VISIBLE);
+                runChangePassword.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        String oldPassword = oldUserPassword.getText().toString();
+                        if (oldPassword.length() < 6) {
+                            Toast.makeText(getApplicationContext(),
+                                    "the old user password is too short, please change",
+                                    Toast.LENGTH_SHORT).show();
+                            //runChangePassword.setVisibility(View.GONE);
+                            return;
+                        }
+                        String newPassword = newUserPassword.getText().toString();
+                        if (newPassword.length() < 6) {
+                            Toast.makeText(getApplicationContext(),
+                                    "the new user password is too short, please change",
+                                    Toast.LENGTH_SHORT).show();
+                            //runChangePassword.setVisibility(View.GONE);
+                            return;
+                        }
+                        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                        // Get auth credentials from the user for re-authentication. The example below shows
+                        // email and password credentials but there are multiple possible providers,
+                        // such as GoogleAuthProvider or FacebookAuthProvider.
+                        AuthCredential credential = EmailAuthProvider
+                                .getCredential(authUserEmail, oldPassword);
+
+                        // Prompt the user to re-provide their sign-in credentials
+                        user.reauthenticate(credential)
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            user.updatePassword(newPassword).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+                                                    if (task.isSuccessful()) {
+                                                        Log.i(TAG, "user password updated");
+                                                        String snackbarInfo = "the user password was changed";
+                                                        Snackbar snackbar = Snackbar
+                                                                .make(view, snackbarInfo, Snackbar.LENGTH_LONG);
+                                                        snackbar.show();
+                                                        oldUserPassword.setText("");
+                                                        oldUserPasswordLayout.setVisibility(View.GONE);
+                                                        newUserPassword.setText("");
+                                                        newUserPasswordLayout.setVisibility(View.GONE);
+                                                        runChangePassword.setVisibility(View.GONE);
+                                                    } else {
+                                                        Log.d(TAG, "Error password not updated");
+                                                    }
+                                                }
+                                            });
+                                        } else {
+                                            Log.i(TAG, "password was not changed");
+                                        }
+                                        Log.i(TAG, "user re-authenticated");
+                                    }
+                                });
+                    }
+                });
+            }
+        });
+
         backToMain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -169,7 +290,7 @@ public class UpdateAuthUserProfileActivity extends AppCompatActivity {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser != null){
+        if (currentUser != null) {
             reload();
         } else {
             signedInUser.setText("no user is signed in");
@@ -214,7 +335,7 @@ public class UpdateAuthUserProfileActivity extends AppCompatActivity {
 
             String userData = "user id: " + authUserId + "\n";
             userData += String.format("email: %s", authUserEmail) + "\n";
-            userData += String.format("email address is verified: %s", user.isEmailVerified())  + "\n";
+            userData += String.format("email address is verified: %s", user.isEmailVerified()) + "\n";
             if (user.getDisplayName() != null) {
                 userData += String.format("display name: %s", authDisplayName) + "\n";
             } else {
@@ -249,12 +370,13 @@ public class UpdateAuthUserProfileActivity extends AppCompatActivity {
 
 
     }
-/*
-    public void writeNewUser(String userId, String name, String email, String photoUrl, String publicKey) {
-        UserModel user = new UserModel(name, email, photoUrl, publicKey);
-        mDatabase.child("users").child(userId).setValue(user);
-    }
-*/
+
+    /*
+        public void writeNewUser(String userId, String name, String email, String photoUrl, String publicKey) {
+            UserModel user = new UserModel(name, email, photoUrl, publicKey);
+            mDatabase.child("users").child(userId).setValue(user);
+        }
+    */
     public void showProgressBar() {
         if (progressBar != null) {
             progressBar.setVisibility(View.VISIBLE);

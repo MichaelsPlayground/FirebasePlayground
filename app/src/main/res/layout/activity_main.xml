@@ -71,7 +71,7 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
                 android:background="@color/blue_300"
-                android:text="* authentication section *"
+                android:text="* authentication sign-in/-up/-out section *"
                 android:textAlignment="center"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -112,6 +112,24 @@
                 android:layout_marginEnd="16dp"
                 android:text="sign out" />
 
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:background="@color/blue_300"
+                android:text="* authentication section *"
+                android:textAlignment="center"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
             <Button
                 android:id="@+id/btnMainUpdateAuthUserProfile"
                 android:layout_width="match_parent"
@@ -120,6 +138,24 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
                 android:text="update auth user data profile" />
+
+            <Button
+                android:id="@+id/btnMainChangeAuthUserPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:text="change auth user password" />
+
+            <Button
+                android:id="@+id/btnMainDeleteAuthUserProfile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:text="delete auth user data profile" />
 
             <com.google.android.material.divider.MaterialDivider
                 android:layout_width="match_parent"
