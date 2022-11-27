@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
         // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
 
+        // todo enable buttons when a user is signed in
 
         // todo use Async Methods for sending notifications (Google)
         // the error happens while doing network operations on MainThread

@@ -72,6 +72,20 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="8dp" />
 
+            <TextView
+                android:id="@+id/tvtDeleteAuthUserProfileRequirement"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:background="@color/orange_300"
+                android:text="filled by checkForSignInProvider"
+                android:textAlignment="center"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:visibility="gone"/>
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/etDeleteAuthUserProfileOldPasswordLayout"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -114,7 +128,8 @@
                 android:text="You are trying to delete a user from Auth database but the deletion requires a fresh login. Push the button below to reauthenticate the user and repeat the deletion."
                 android:textAlignment="center"
                 android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:visibility="gone" />
 
             <Button
                 android:id="@+id/btnDeleteAuthUserProfileDeleteUser"
@@ -124,6 +139,15 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
                 android:text="delete the current user" />
+
+            <com.google.android.gms.common.SignInButton
+                android:id="@+id/btnDeleteAuthUserProfileSignInGoogle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:visibility="gone" />
 
             <com.google.android.material.divider.MaterialDivider
                 android:layout_width="match_parent"

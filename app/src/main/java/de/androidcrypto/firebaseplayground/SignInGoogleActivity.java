@@ -167,6 +167,7 @@ public class SignInGoogleActivity extends AppCompatActivity {
             SignInCredential credential = signInClient.getSignInCredentialFromIntent(data);
             String idToken = credential.getGoogleIdToken();
             Log.d(TAG, "firebaseAuthWithGoogle:" + credential.getId());
+            Log.d(TAG, "signIn token:" + idToken);
             firebaseAuthWithGoogle(idToken);
         } catch (ApiException e) {
             // Google Sign In failed, update UI appropriately
