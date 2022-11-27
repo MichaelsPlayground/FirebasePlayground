@@ -111,6 +111,7 @@ public class DatabaseUserActivity extends AppCompatActivity {
                         }
                     });
                 } else {
+                    Log.i(TAG, "load user data - sign in a user before loading");
                     Toast.makeText(getApplicationContext(),
                             "sign in a user before loading",
                             Toast.LENGTH_SHORT).show();

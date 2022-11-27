@@ -115,10 +115,17 @@ public class DeleteAuthUserProfileActivity extends AppCompatActivity {
                         if (providerId.equals("google.com")) {
                             Log.i(TAG, "delete the current user - workflow Google");
                             GoogleSignInAccount signInAccount = GoogleSignIn.getLastSignedInAccount(getApplicationContext());
+
                             if (signInAccount != null) {
+                                Log.i(TAG, "googleSignInAccount.getId: " + signInAccount.getId());
                                 authCredential = GoogleAuthProvider.getCredential(signInAccount.getIdToken(), null);
+                                Log.i(TAG, "authCredential: " + authCredential.getSignInMethod() + " zza: " + authCredential.zza().getProvider());
+                                userDelete();
+                            } else {
+                                Log.i(TAG, "googleSignInAccount.getId: NULL");
+
                             }
-                            userDelete();
+
                         }
 
 
