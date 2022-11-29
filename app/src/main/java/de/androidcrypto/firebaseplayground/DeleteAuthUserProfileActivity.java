@@ -70,6 +70,8 @@ public class DeleteAuthUserProfileActivity extends AppCompatActivity {
     // get the data from auth
     private static String authUserId = "", authUserEmail = "", authDisplayName = "", authPhotoUrl = "";
     private String providerId = ""; // eg password or google.com
+    private final String PROVIDER_ID_PASSWORD = "password";
+    private final String PROVIDER_ID_GOOGLE = "google.com";
     //private String googleIdToken = "";
 
     View storedView; // for snackbar
@@ -120,7 +122,7 @@ public class DeleteAuthUserProfileActivity extends AppCompatActivity {
                          * workflow for Email-password user
                          */
 
-                        if (providerId.equals("password")) {
+                        if (providerId.equals(PROVIDER_ID_PASSWORD)) {
                             Log.i(TAG, "delete the current user - workflow Email-password");
                             String oldPassword = oldUserPassword.getText().toString();
                             if (oldPassword.length() < 6) {
@@ -134,7 +136,7 @@ public class DeleteAuthUserProfileActivity extends AppCompatActivity {
                             userDelete();
                         }
 
-                        if (providerId.equals("google.com")) {
+                        if (providerId.equals(PROVIDER_ID_GOOGLE)) {
                             Log.i(TAG, "delete the current user - workflow Google");
                                 userDelete();
                         }
@@ -202,11 +204,11 @@ public class DeleteAuthUserProfileActivity extends AppCompatActivity {
             public void onFailure(@NonNull Exception e) {
                 Log.e(TAG, "onFailure: Error deleting user, probably need to reauthenticate");
                 Log.e(TAG, "onFailure: Error:", e);
-                if (providerId.equals("password")) {
+                if (providerId.equals(PROVIDER_ID_PASSWORD)) {
                     Log.i(TAG, "userDelete onFailure email/password login, reAuthenticateUser");
                     reAuthenticateUser(); //reauth and delete user
                 }
-                if (providerId.equals("google.com")) {
+                if (providerId.equals(PROVIDER_ID_GOOGLE)) {
                     Log.i(TAG, "userDelete onFailure Google login, show button to sign in");
                     Toast.makeText(getApplicationContext(),
                             "please sign-in to your Google account again and delete a second time",
@@ -244,13 +246,13 @@ public class DeleteAuthUserProfileActivity extends AppCompatActivity {
                     });
                 } else {
                     Log.e(TAG, "onComplete: ERROR deleting user: task fail", task.getException());
-                    if (providerId.equals("password")) {
+                    if (providerId.equals(PROVIDER_ID_PASSWORD)) {
                         Toast.makeText(getApplicationContext(),
                                 "could not delete the current user (wrong password ?)",
                                 Toast.LENGTH_SHORT).show();
                         signInGoogle.setVisibility(View.GONE);
                     }
-                    if (providerId.equals("google.com")) {
+                    if (providerId.equals(PROVIDER_ID_GOOGLE)) {
                         Toast.makeText(getApplicationContext(),
                                 "please sign-in to your Google account again and delete a second time",
                                 Toast.LENGTH_SHORT).show();
@@ -264,20 +266,6 @@ public class DeleteAuthUserProfileActivity extends AppCompatActivity {
     private void signOut() {
         //sign out from firebase
         FirebaseAuth.getInstance().signOut();
-        //sign out from "google sign in"
-        /*
-        googleSignInClient.signOut().addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                //Get back to login screen
-                Intent intent = new Intent(getContext(), LoginActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
-                getActivity().finish();
-            }
-        });
-
-         */
     }
 
     /**
@@ -320,7 +308,7 @@ public class DeleteAuthUserProfileActivity extends AppCompatActivity {
                 providerId = getTokenResult.getSignInProvider();
                 String messageString = "You are going to delete the current user from the auth database.";
                 Log.i(TAG, "providerId: " + providerId);
-                if (providerId.equals("password")) {
+                if (providerId.equals(PROVIDER_ID_PASSWORD)) {
                     oldUserPasswordLayout.setVisibility(View.VISIBLE);
                     messageString += "\nAs this is a sensitive process Firebase Auth may require the user's ";
                     messageString += "password to re-authenticate.";
@@ -332,11 +320,16 @@ public class DeleteAuthUserProfileActivity extends AppCompatActivity {
                     messageString += "\nAs this is a sensitive process and you signed-in with a Google account ";
                     messageString += "Firebase Auth may require that the user ";
                     messageString += "is sign out and then sign-in to re-authenticate.";
-                    messageString += "\nPlease check for a button showing up below";
+                    messageString += "\nPlease check for a button eventually showing up below";
                     actionRequirements.setText(messageString);
                     actionRequirements.setVisibility(View.VISIBLE);
                 }
-
+                // text for tvDeleteAuthUserProfileReauthenticationError
+                messageString = "You are trying to delete a user that was signed-in with a Google account from Auth database ";
+                messageString += "but the deletion requires a fresh login.";
+                messageString += "\nPush the Google sign-in button below to reauthenticate the user and then repeat the deletion.";
+                reauthenticationError.setText(messageString);
+                reauthenticationError.setVisibility(View.GONE);
             }
         });
     }
@@ -387,11 +380,6 @@ public class DeleteAuthUserProfileActivity extends AppCompatActivity {
                 userData += "no photo url available";
             }
             signedInUser.setText(userData);
-            if (user.isEmailVerified()) {
-//                mBinding.verifyEmailButton.setVisibility(View.GONE);
-            } else {
-//                mBinding.verifyEmailButton.setVisibility(View.VISIBLE);
-            }
         } else {
             signedInUser.setText(null);
         }
