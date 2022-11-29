@@ -42,8 +42,6 @@ public class UpdateAuthUserProfileActivity extends AppCompatActivity {
 
     com.google.android.material.textfield.TextInputEditText signedInUser;
     com.google.android.material.textfield.TextInputEditText userId, userEmail, userPhotoUrl, userName;
-    com.google.android.material.textfield.TextInputLayout oldUserPasswordLayout, newUserPasswordLayout;
-    com.google.android.material.textfield.TextInputEditText oldUserPassword, newUserPassword;
     TextView warningNoData;
 
     static final String TAG = "UpdateAuthUserProfile";
@@ -66,10 +64,7 @@ public class UpdateAuthUserProfileActivity extends AppCompatActivity {
         userEmail = findViewById(R.id.etUpdateAuthUserProfileUserEmail);
         userPhotoUrl = findViewById(R.id.etUpdateAuthUserProfilePhotoUrl);
         userName = findViewById(R.id.etUpdateAuthUserProfileUserName);
-        oldUserPassword = findViewById(R.id.etUpdateAuthUserProfileOldPassword);
-        oldUserPasswordLayout = findViewById(R.id.etUpdateAuthUserProfileOldPasswordLayout);
-        newUserPassword = findViewById(R.id.etUpdateAuthUserProfileNewPassword);
-        newUserPasswordLayout = findViewById(R.id.etUpdateAuthUserProfileNewPasswordLayout);
+
 
         // don't show the keyboard on startUp
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
@@ -199,82 +194,6 @@ public class UpdateAuthUserProfileActivity extends AppCompatActivity {
             }
         });
 
-        // this is the inner button to change the password
-        Button runChangePassword = findViewById(R.id.btnUpdateAuthUserProfileRunChangePassword);
-
-        Button changePassword = findViewById(R.id.btnUpdateAuthUserProfileChangePassword);
-        changePassword.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.i(TAG, "change the email password for the current user");
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                if (user == null) return;
-                // todo make button and edittext visible or not
-                oldUserPasswordLayout.setVisibility(View.VISIBLE);
-                newUserPasswordLayout.setVisibility(View.VISIBLE);
-                runChangePassword.setVisibility(View.VISIBLE);
-                runChangePassword.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        String oldPassword = oldUserPassword.getText().toString();
-                        if (oldPassword.length() < 6) {
-                            Toast.makeText(getApplicationContext(),
-                                    "the old user password is too short, please change",
-                                    Toast.LENGTH_SHORT).show();
-                            //runChangePassword.setVisibility(View.GONE);
-                            return;
-                        }
-                        String newPassword = newUserPassword.getText().toString();
-                        if (newPassword.length() < 6) {
-                            Toast.makeText(getApplicationContext(),
-                                    "the new user password is too short, please change",
-                                    Toast.LENGTH_SHORT).show();
-                            //runChangePassword.setVisibility(View.GONE);
-                            return;
-                        }
-                        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                        // Get auth credentials from the user for re-authentication. The example below shows
-                        // email and password credentials but there are multiple possible providers,
-                        // such as GoogleAuthProvider or FacebookAuthProvider.
-                        AuthCredential credential = EmailAuthProvider
-                                .getCredential(authUserEmail, oldPassword);
-
-                        // Prompt the user to re-provide their sign-in credentials
-                        user.reauthenticate(credential)
-                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        if (task.isSuccessful()) {
-                                            user.updatePassword(newPassword).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<Void> task) {
-                                                    if (task.isSuccessful()) {
-                                                        Log.i(TAG, "user password updated");
-                                                        String snackbarInfo = "the user password was changed";
-                                                        Snackbar snackbar = Snackbar
-                                                                .make(view, snackbarInfo, Snackbar.LENGTH_LONG);
-                                                        snackbar.show();
-                                                        oldUserPassword.setText("");
-                                                        oldUserPasswordLayout.setVisibility(View.GONE);
-                                                        newUserPassword.setText("");
-                                                        newUserPasswordLayout.setVisibility(View.GONE);
-                                                        runChangePassword.setVisibility(View.GONE);
-                                                    } else {
-                                                        Log.d(TAG, "Error password not updated");
-                                                    }
-                                                }
-                                            });
-                                        } else {
-                                            Log.i(TAG, "password was not changed");
-                                        }
-                                        Log.i(TAG, "user re-authenticated");
-                                    }
-                                });
-                    }
-                });
-            }
-        });
-
         backToMain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -354,14 +273,6 @@ public class UpdateAuthUserProfileActivity extends AppCompatActivity {
             }
         } else {
             signedInUser.setText(null);
- /*
-            mBinding.detail.setText(null);
-
-            mBinding.emailPasswordButtons.setVisibility(View.VISIBLE);
-            mBinding.emailPasswordFields.setVisibility(View.VISIBLE);
-            mBinding.signedInButtons.setVisibility(View.GONE);
-
-  */
         }
     }
 

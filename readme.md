@@ -9,8 +9,33 @@ and the following services are running here:
 
 * sign in with email and password (without email verification)
 * sign in using an Google account
-* sign in anonymously
+* (n.a. sign in anonymously)
 * sign out the existing user
+
+**Authentication section**
+
+* update the user profile (user name, photo-url)
+* change the password for a user that signed-in with email nd password
+* delete the auth profile for the current user
+
+**Database section (Realtime database)**
+
+* edit the user profile on database (user name)
+* update the user image
+* send a message to another user
+* list messages
+
+**Storage section**
+
+* upload an image to storage
+* list images onstorage
+* download an image from storage
+
+**Service section**
+
+* list user on database
+* send a notification to another user
+
 
 **Ressources used for this playground**
 
