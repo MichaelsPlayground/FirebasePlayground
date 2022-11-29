@@ -35,25 +35,20 @@ import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
-import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseAuthProvider;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GetTokenResult;
-import com.google.firebase.auth.GithubAuthProvider;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.auth.PhoneAuthProvider;
-import com.google.firebase.auth.TwitterAuthProvider;
 import com.google.firebase.auth.UserInfo;
-import com.google.firebase.auth.UserProfileChangeRequest;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public class DeleteAuthUserProfileActivity extends AppCompatActivity {
+public class DeleteAuthUserProfileActivityFullNotWorking extends AppCompatActivity {
 
     /**
      * https://firebase.google.com/docs/auth/android/manage-users
@@ -136,8 +131,97 @@ public class DeleteAuthUserProfileActivity extends AppCompatActivity {
 
                         if (providerId.equals("google.com")) {
                             Log.i(TAG, "delete the current user - workflow Google");
+                            GoogleSignInAccount signInAccount = GoogleSignIn.getLastSignedInAccount(getApplicationContext());
+                            if (signInAccount != null) {
+                                Log.i(TAG, "googleSignInAccount.getId: " + signInAccount.getId());
+                                authCredential = GoogleAuthProvider.getCredential(signInAccount.getIdToken(), null);
+                                Log.i(TAG, "authCredential: " + authCredential.getSignInMethod() + " zza: " + authCredential.zza().getProvider());
                                 userDelete();
+                            } else {
+                                Log.i(TAG, "googleSignInAccount.getId: NULL");
+                                userDelete();
+                            }
+
                         }
+
+
+                        // workflow for
+
+
+                        // Get auth credentials from the user for re-authentication. The example below shows
+                        // email and password credentials but there are multiple possible providers,
+                        // such as GoogleAuthProvider or FacebookAuthProvider.
+
+/*
+                        // Prompt the user to re-provide their sign-in credentials
+                        user.reauthenticate(credential)
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            user.delete()
+                                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                            if (task.isSuccessful()) {
+                                                                oldUserPassword.setText("");
+                                                                Log.i(TAG, "user account deleted");
+                                                                signedInUser.setText("the user was deleted");
+                                                                String snackbarInfo = "the user account was deleted. " +
+                                                                        "This playground does NOT delete the user in database and storage units !";
+                                                                Snackbar snackbar = Snackbar
+                                                                        .make(view, snackbarInfo, Snackbar.LENGTH_LONG);
+                                                                snackbar.show();
+                                                            } else {
+                                                                Log.e(TAG, "error on deleting the users auth profile");
+                                                                Toast.makeText(getApplicationContext(),
+                                                                        "error on deleting the users auth profile",
+                                                                        Toast.LENGTH_SHORT).show();
+                                                            }
+                                                        }
+                                                    });
+                                        } else {
+                                            Log.i(TAG, "user was not deleted");
+                                            Toast.makeText(getApplicationContext(),
+                                                    "error on deleting the users auth profile (wrong password ?)",
+                                                    Toast.LENGTH_SHORT).show();
+                                        }
+                                        Log.i(TAG, "user re-authenticated");
+                                    }
+                                });
+                        } else {
+                            Log.i(TAG, "user is signed in with Google");
+                            // the only other auth provider is google.com in this example
+                            // delete the user immediately
+                            user.delete()
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.e(TAG, "execption on deletion: " + e);
+                                        }
+                                    })
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()) {
+                                                oldUserPassword.setText("");
+                                                Log.i(TAG, "user account deleted");
+                                                signedInUser.setText("the user was deleted");
+                                                String snackbarInfo = "the user account was deleted. " +
+                                                        "This playground does NOT delete in database and storage units !";
+                                                Snackbar snackbar = Snackbar
+                                                        .make(view, snackbarInfo, Snackbar.LENGTH_LONG);
+                                                snackbar.show();
+                                            } else {
+                                                Log.e(TAG, "error on deleting the users auth profile");
+                                                Toast.makeText(getApplicationContext(),
+                                                        "error on deleting the users auth profile",
+                                                        Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                    });
+
+                        }*/
                         dialog.dismiss();
                     }
                 });
@@ -154,12 +238,21 @@ public class DeleteAuthUserProfileActivity extends AppCompatActivity {
             }
         });
 
+        // all code from this button is taken from FirebaseUI-Android sample app and library itself
+        Button deleteUserFirebaseUi = findViewById(R.id.btnDeleteAuthUserProfileFirebaseUiDeleteUser);
+        deleteUserFirebaseUi.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                deleteUserWithFirebaseUi(view);
+            }
+        });
+
         signInGoogle = findViewById(R.id.btnDeleteAuthUserProfileSignInGoogle);
         signInGoogle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Log.i(TAG, "sign in a user with a Google account");
-                Intent intent = new Intent(DeleteAuthUserProfileActivity.this, SignInGoogleActivity.class);
+                Intent intent = new Intent(DeleteAuthUserProfileActivityFullNotWorking.this, SignInGoogleActivity.class);
                 startActivity(intent);
                 //finish();
             }
@@ -168,11 +261,201 @@ public class DeleteAuthUserProfileActivity extends AppCompatActivity {
         backToMain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(DeleteAuthUserProfileActivity.this, MainActivity.class);
+                Intent intent = new Intent(DeleteAuthUserProfileActivityFullNotWorking.this, MainActivity.class);
                 startActivity(intent);
                 finish();
             }
         });
+    }
+
+    /**
+     * code taken from FirebaseUI-Android, here:
+     * package com.firebase.ui.auth AuthUI.java
+     */
+    private void deleteUserWithFirebaseUi(View view) {
+        delete(view.getContext())
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(getApplicationContext(),
+                                "deleteUserWithFirebaseUi SUCCESS",
+                                Toast.LENGTH_SHORT).show();
+                        System.out.println("*** delete account successful ***");
+                        Intent intent = new Intent(DeleteAuthUserProfileActivityFullNotWorking.this, MainActivity.class);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        Toast.makeText(getApplicationContext(),
+                                "deleteUserWithFirebaseUi FAILURE",
+                                Toast.LENGTH_SHORT).show();
+                        System.out.println("*** delete account FAILED ***");
+                        //showSnackbar(R.string.delete_account_failed);
+                    }
+                });
+    }
+
+    /**
+     * Delete the use from FirebaseAuth and delete any associated credentials from the Credentials
+     * API. Returns a {@link Task} that succeeds if the Firebase Auth user deletion succeeds and
+     * fails if the Firebase Auth deletion fails. Credentials deletion failures are handled
+     * silently.
+     *
+     * @param context the calling {@link Context}.
+     */
+    @NonNull
+    public Task<Void> delete(@NonNull final Context context) {
+        final FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) {
+            return Tasks.forException(new FirebaseAuthInvalidUserException(
+                    String.valueOf(CommonStatusCodes.SIGN_IN_REQUIRED),
+                    "No currently signed in user."));
+        }
+
+        final List<Credential> credentials = getCredentialsFromFirebaseUser(currentUser);
+
+        // Ensure the order in which tasks are executed properly destructures the user.
+        return signOutIdps(context).continueWithTask(task -> {
+            task.getResult(); // Propagate exception if there was one
+
+            if (!GoogleApiUtils.isPlayServicesAvailable(context)) {
+                Log.w(TAG, "Google Play services not available during delete");
+                return Tasks.forResult((Void) null);
+            }
+            System.out.println("** starting GoogleApiUtils.getCredentialsClient");
+            final CredentialsClient client = GoogleApiUtils.getCredentialsClient(context);
+            List<Task<?>> credentialTasks = new ArrayList<>();
+            for (Credential credential : credentials) {
+                String credentialString = "* credential ID:" + credential.getId();
+                credentialString += " IdTokens: " + credential.getIdTokens();
+                System.out.println(credentialString);
+                credentialTasks.add(client.delete(credential));
+            }
+            return Tasks.whenAll(credentialTasks)
+                    .continueWith(task1 -> {
+                        Exception e = task1.getException();
+                        Throwable t = e == null ? null : e.getCause();
+                        if (!(t instanceof ApiException)
+                                || ((ApiException) t).getStatusCode() !=
+                                CommonStatusCodes.CANCELED) {
+                            // Only propagate the exception if it isn't an invalid account
+                            // one. This can occur if we failed to save the credential or it
+                            // was deleted elsewhere. However, a lack of stored credential
+                            // doesn't mean fully deleting the user failed.
+                            return task1.getResult();
+                        }
+
+                        return null;
+                    });
+        }).continueWithTask(task -> {
+            task.getResult(); // Propagate exception if there was one
+            return currentUser.delete();
+        });
+    }
+
+    /**
+     * Make a list of {@link Credential} from a FirebaseUser. Useful for deleting Credentials, not
+     * for saving since we don't have access to the password.
+     */
+    private static List<Credential> getCredentialsFromFirebaseUser(@NonNull FirebaseUser user) {
+        if (TextUtils.isEmpty(user.getEmail()) && TextUtils.isEmpty(user.getPhoneNumber())) {
+            return Collections.emptyList();
+        }
+
+        List<Credential> credentials = new ArrayList<>();
+        for (UserInfo userInfo : user.getProviderData()) {
+            if (FirebaseAuthProvider.PROVIDER_ID.equals(userInfo.getProviderId())) {
+                continue;
+            }
+
+            String type = providerIdToAccountType(userInfo.getProviderId());
+            if (type == null) {
+                // Since the account type is null, we've got an email credential. Adding a fake
+                // password is the only way to tell Smart Lock that this is an email credential.
+                credentials.add(buildCredentialOrThrow(user, "pass", null));
+            } else {
+                credentials.add(buildCredentialOrThrow(user, null, type));
+            }
+        }
+
+        return credentials;
+    }
+
+    /**
+     * Translate a Firebase Auth provider ID (such as {@link GoogleAuthProvider#PROVIDER_ID}) to a
+     * Credentials API account type (such as {@link IdentityProviders#GOOGLE}).
+     * taken from ProviderUtils.java
+     */
+    public static String providerIdToAccountType(
+           @NonNull String providerId) {
+        System.out.println("** providerIdToAccountType: " + providerId);
+        switch (providerId) {
+            case GoogleAuthProvider.PROVIDER_ID:
+                return IdentityProviders.GOOGLE;
+            // The account type for email/password creds is null
+            case EmailAuthProvider.PROVIDER_ID:
+            default:
+                return null;
+        }
+    }
+
+    /**
+     * @see #buildCredential(FirebaseUser, String, String)
+     * taken from CredentialUtils.java
+     */
+    @NonNull
+    public static Credential buildCredentialOrThrow(@NonNull FirebaseUser user,
+                                                    @Nullable String password,
+                                                    @Nullable String accountType) {
+        Credential credential = buildCredential(user, password, accountType);
+        if (credential == null) {
+            throw new IllegalStateException("Unable to build credential");
+        }
+        return credential;
+    }
+
+    /**
+     * Build a credential for the specified {@link FirebaseUser} with optional password and {@link
+     * IdpResponse}.
+     * <p>
+     * If the credential cannot be built (for example, empty email) then will return {@code null}.
+     */
+    @Nullable
+    public static Credential buildCredential(@NonNull FirebaseUser user,
+                                             @Nullable String password,
+                                             @Nullable String accountType) {
+        String email = user.getEmail();
+        String phone = user.getPhoneNumber();
+        Uri profilePictureUri =
+                user.getPhotoUrl() == null ? null : Uri.parse(user.getPhotoUrl().toString());
+
+        if (TextUtils.isEmpty(email) && TextUtils.isEmpty(phone)) {
+            Log.w(TAG, "User (accountType=" + accountType + ") has no email or phone number, cannot build credential.");
+            return null;
+        }
+        if (password == null && accountType == null) {
+            Log.w(TAG, "User has no accountType or password, cannot build credential.");
+            return null;
+        }
+
+        Credential.Builder builder =
+                new Credential.Builder(TextUtils.isEmpty(email) ? phone : email)
+                        .setName(user.getDisplayName())
+                        .setProfilePictureUri(profilePictureUri);
+
+        if (TextUtils.isEmpty(password)) {
+            builder.setAccountType(accountType);
+        } else {
+            builder.setPassword(password);
+        }
+
+        return builder.build();
+    }
+
+    private Task<Void> signOutIdps(@NonNull Context context) {
+        if (GoogleApiUtils.isPlayServicesAvailable(context)) {
+            return GoogleSignIn.getClient(context, GoogleSignInOptions.DEFAULT_SIGN_IN).signOut();
+        } else {
+            return Tasks.forResult((Void) null);
+        }
     }
 
     /**
