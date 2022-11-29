@@ -86,7 +86,7 @@ public class DeleteAuthUserProfileActivity extends AppCompatActivity {
 
         signedInUser = findViewById(R.id.etDeleteAuthUserProfileSignedInUser);
         progressBar = findViewById(R.id.pbDeleteAuthUserProfile);
-        actionRequirements = findViewById(R.id.tvtDeleteAuthUserProfileRequirement);
+        actionRequirements = findViewById(R.id.tvDeleteAuthUserProfileRequirement);
 
         oldUserPassword = findViewById(R.id.etDeleteAuthUserProfileOldPassword);
         oldUserPasswordLayout = findViewById(R.id.etDeleteAuthUserProfileOldPasswordLayout);

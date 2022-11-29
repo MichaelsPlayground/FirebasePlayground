@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -15,12 +16,14 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GetTokenResult;
 
 import java.util.Objects;
 
@@ -30,13 +33,18 @@ public class ChangeAuthUserPasswordActivity extends AppCompatActivity {
      * https://firebase.google.com/docs/auth/android/manage-users
      */
 
+    TextView actionRequirements;
     com.google.android.material.textfield.TextInputEditText signedInUser;
     com.google.android.material.textfield.TextInputLayout oldUserPasswordLayout, newUserPasswordLayout;
     com.google.android.material.textfield.TextInputEditText oldUserPassword, newUserPassword;
+    Button changePassword;
 
     static final String TAG = "ChangeAuthUserPassword";
     // get the data from auth
     private static String authUserId = "", authUserEmail = "", authDisplayName = "", authPhotoUrl = "";
+    private String providerId = ""; // eg password or google.com
+    private final String PROVIDER_ID_PASSWORD = "password";
+    // private final String PROVIDER_ID_GOOGLE = "google.com";
 
     private FirebaseAuth mAuth;
     ProgressBar progressBar;
@@ -48,6 +56,7 @@ public class ChangeAuthUserPasswordActivity extends AppCompatActivity {
 
         signedInUser = findViewById(R.id.etChangeAuthUserPasswordSignedInUser);
         progressBar = findViewById(R.id.pbChangeAuthUserPassword);
+        actionRequirements = findViewById(R.id.tvChangeAuthUserPasswordRequirement);
 
         oldUserPassword = findViewById(R.id.etChangeAuthUserPasswordOldPassword);
         oldUserPasswordLayout = findViewById(R.id.etChangeAuthUserPasswordOldPasswordLayout);
@@ -62,7 +71,7 @@ public class ChangeAuthUserPasswordActivity extends AppCompatActivity {
 
         Button backToMain = findViewById(R.id.btnChangeAuthUserPasswordToMain);
 
-        Button changePassword = findViewById(R.id.btnChangeAuthUserPasswordChangePassword);
+        changePassword = findViewById(R.id.btnChangeAuthUserPasswordChangePassword);
         changePassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -141,9 +150,54 @@ public class ChangeAuthUserPasswordActivity extends AppCompatActivity {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
             reload();
+            checkForSignInProvider();
         } else {
             signedInUser.setText("no user is signed in");
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        checkForSignInProvider();
+    }
+
+    private void checkForSignInProvider() {
+        // get the providerId
+        // get provider that was used for sign in
+        // https://stackoverflow.com/a/66118499/8166854
+        // So, if (strProvider.equals("password")) then the authentication is by Email + Password,
+        // if (strProvider.equals("google.com")) then the authentication is via Google,
+        // if (strProvider.equals("facebook.com")) then the authentication is via Facebook.
+        mAuth.getAccessToken(false).addOnSuccessListener(new OnSuccessListener<GetTokenResult>() {
+            @Override
+            public void onSuccess(GetTokenResult getTokenResult) {
+                providerId = getTokenResult.getSignInProvider();
+                String messageString = "You are going to change the password of the current user from the auth database.";
+                Log.i(TAG, "providerId: " + providerId);
+                if (providerId.equals(PROVIDER_ID_PASSWORD)) {
+                    oldUserPasswordLayout.setVisibility(View.VISIBLE);
+                    messageString += "\nAs this is a sensitive process Firebase Auth may require the user's ";
+                    messageString += "password to re-authenticate.";
+                    messageString += "\nPlease provide the old and new passwords to proceed";
+                    actionRequirements.setText(messageString);
+                    actionRequirements.setVisibility(View.VISIBLE);
+                    oldUserPasswordLayout.setEnabled(true);
+                    newUserPasswordLayout.setEnabled(true);
+                    changePassword.setEnabled(true);
+                } else {
+                    // a google signed-in user cannot change a password
+                    oldUserPasswordLayout.setVisibility(View.GONE);
+                    messageString += "\nAs the current user is signed-in using a Google account ";
+                    messageString += "you cannot change the password.";
+                    actionRequirements.setText(messageString);
+                    actionRequirements.setVisibility(View.VISIBLE);
+                    oldUserPasswordLayout.setEnabled(false);
+                    newUserPasswordLayout.setEnabled(false);
+                    changePassword.setEnabled(false);
+                }
+            }
+        });
     }
 
     private void reload() {
