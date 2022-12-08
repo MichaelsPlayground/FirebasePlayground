@@ -49,6 +49,10 @@ public class MainActivity extends AppCompatActivity {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
+        /**
+         * authentication sign-in/out section
+         */
+
         Button signUpWithEmailAndPassword = findViewById(R.id.btnMainSignUpEmailPassword);
         signUpWithEmailAndPassword.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,6 +96,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        /**
+         * authentication section
+         */
+
         Button updateAuthUserProfile = findViewById(R.id.btnMainUpdateAuthUserProfile);
         updateAuthUserProfile.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -125,11 +133,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        /**
+         * database section
+         */
+
         Button databaseUserProfile = findViewById(R.id.btnMainDatabaseUser);
         databaseUserProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.i(TAG, "show the user profile");
+                Log.i(TAG, "show the user profile on Realtime Database");
                 Intent intent = new Intent(MainActivity.this, DatabaseUserActivity.class);
                 startActivity(intent);
                 //finish();
@@ -140,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
         updateUserImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.i(TAG, "show the user profile");
+                Log.i(TAG, "update the user profile");
                 Intent intent = new Intent(MainActivity.this, UpdateUserImageActivity.class);
                 //Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivity(intent);
@@ -169,6 +181,25 @@ public class MainActivity extends AppCompatActivity {
                 //finish();
             }
         });
+
+        /**
+         * firestore database section
+         */
+
+        Button firestoreDatabaseUserProfile = findViewById(R.id.btnMainFirestoreDatabaseUser);
+        firestoreDatabaseUserProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.i(TAG, "show the user profile on Firestore Database");
+                Intent intent = new Intent(MainActivity.this, FirestoreDatabaseUserActivity.class);
+                startActivity(intent);
+                //finish();
+            }
+        });
+
+        /**
+         * storage section
+         */
 
         Button uploadImage = findViewById(R.id.btnMainUploadImage);
         uploadImage.setOnClickListener(new View.OnClickListener() {
@@ -202,6 +233,10 @@ public class MainActivity extends AppCompatActivity {
                 //finish();
             }
         });
+
+        /**
+         * service section
+         */
 
         Button listUser = findViewById(R.id.btnMainListUser);
         listUser.setOnClickListener(new View.OnClickListener() {
