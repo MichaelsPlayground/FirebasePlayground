@@ -159,6 +159,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button listUser = findViewById(R.id.btnMainListUser);
+        listUser.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.i(TAG, "list user on database");
+                Intent intent = new Intent(MainActivity.this, ListUserActivity.class);
+                startActivity(intent);
+                //finish();
+            }
+        });
+
         Button updateUserImage = findViewById(R.id.btnMainUpdateUserImage);
         updateUserImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -208,6 +219,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button listUserFirestore = findViewById(R.id.btnMainFirestoreDatabaseUserListUser);
+        listUserFirestore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.i(TAG, "list user on database");
+                Intent intent = new Intent(MainActivity.this, ListUserFirestoreActivity.class);
+                startActivity(intent);
+                //finish();
+            }
+        });
+
+
+
         /**
          * storage section
          */
@@ -248,17 +272,6 @@ public class MainActivity extends AppCompatActivity {
         /**
          * service section
          */
-
-        Button listUser = findViewById(R.id.btnMainListUser);
-        listUser.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.i(TAG, "list user on database");
-                Intent intent = new Intent(MainActivity.this, ListUserActivity.class);
-                startActivity(intent);
-                //finish();
-            }
-        });
 
         // we need this to receive notifications
         createNotificationChannel();

@@ -14,13 +14,13 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
-                android:text="List all users"
+                android:text="List all users on Firestore"
                 android:textAlignment="center"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
             <ProgressBar
-                android:id="@+id/pbDatabaseUser"
+                android:id="@+id/pbFirestoreDatabaseUser"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -28,7 +28,7 @@
                 android:visibility="invisible" />
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/etDatabaseUserSignedInUserLayout"
+                android:id="@+id/etFirestoreDatabaseUserSignedInUserLayout"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -46,7 +46,7 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etDatabaseUserSignedInUser"
+                    android:id="@+id/etFirestoreDatabaseUserSignedInUser"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
@@ -64,7 +64,7 @@
                 android:layout_marginBottom="8dp" />
 
             <Button
-                android:id="@+id/btnListUserRun"
+                android:id="@+id/btnListUserFirestoreRun"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
@@ -73,7 +73,7 @@
                 android:text="list user" />
 
     <Button
-        android:id="@+id/btnDatabaseUserToMain"
+        android:id="@+id/btnFirestoreDatabaseUserToMain"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -82,7 +82,7 @@
         android:text="back to Main" />
 
             <ListView
-                android:id="@+id/lvListUser"
+                android:id="@+id/lvListUserFirestore"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="2dp">
