@@ -230,7 +230,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
+        Button listUserFirestoreRv = findViewById(R.id.btnMainFirestoreDatabaseRvUserListUser);
+        listUserFirestoreRv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.i(TAG, "list user on database with RecyclerView");
+                Intent intent = new Intent(MainActivity.this, ListUserFirestoreRecyclerViewActivity.class);
+                startActivity(intent);
+                //finish();
+            }
+        });
 
         /**
          * storage section

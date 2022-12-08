@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    >
+
+    <!--  android:background="@drawable/background_left"  -->
+    <LinearLayout
+        android:id="@+id/listUserRvLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="5dp">
+
+        <TextView
+            android:id="@+id/userRvName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="5dp"
+            android:text="userRvName"
+            android:textColor="@android:color/holo_orange_light" />
+
+        <TextView
+            android:id="@+id/userRvEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="TuserRvEmail"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="5dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="@android:color/white" />
+
+        <TextView
+            android:id="@+id/userRvId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:text="userRvNameId"
+            android:textColor="@android:color/holo_orange_light" />
+    </LinearLayout>
+</LinearLayout>
