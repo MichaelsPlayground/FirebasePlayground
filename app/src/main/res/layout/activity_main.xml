@@ -185,6 +185,16 @@
                 android:text="database user profile" />
 
             <Button
+                android:id="@+id/btnMainListUser"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:enabled="true"
+                android:text="list user on database" />
+
+            <Button
                 android:id="@+id/btnMainUpdateUserImage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -238,6 +248,15 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
                 android:text="firestore database user profile" />
+
+            <Button
+                android:id="@+id/btnMainFirestoreDatabaseUserListUser"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:text="list firestore database user" />
 
 
             <com.google.android.material.divider.MaterialDivider
@@ -305,16 +324,6 @@
                 android:textAlignment="center"
                 android:textSize="16sp"
                 android:textStyle="bold" />
-
-            <Button
-                android:id="@+id/btnMainListUser"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="16dp"
-                android:enabled="true"
-                android:text="list user on database" />
 
             <Button
                 android:id="@+id/btnMainSendNotification"

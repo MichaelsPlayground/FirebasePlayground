@@ -13,6 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
@@ -20,9 +22,14 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Objects;
 
+import de.androidcrypto.firebaseplayground.models.UserFirestoreModel;
 import de.androidcrypto.firebaseplayground.models.UserModel;
 
 public class FirestoreDatabaseUserActivity extends AppCompatActivity {
@@ -31,12 +38,16 @@ public class FirestoreDatabaseUserActivity extends AppCompatActivity {
     com.google.android.material.textfield.TextInputEditText userId, userEmail, userPhotoUrl, userPublicKey, userName;
     TextView warningNoData;
 
-    static final String TAG = "FirestoreDatabaseUser";
+    private static final String TAG = "FirestoreDatabaseUser";
     // get the data from auth
     private static String authUserId = "", authUserEmail, authDisplayName, authPhotoUrl;
 
     private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
+    FirebaseFirestore firestoreDatabase = FirebaseFirestore.getInstance();
+    private static final String CHILD_USERS = "users";
+    CollectionReference userRef = firestoreDatabase.collection(CHILD_USERS);
+    FirebaseUser user  = FirebaseAuth.getInstance().getCurrentUser();
     ProgressBar progressBar;
 
     @Override
@@ -70,44 +81,46 @@ public class FirestoreDatabaseUserActivity extends AppCompatActivity {
         Button saveData = findViewById(R.id.btnFirestoreDatabaseUserSave);
         Button backToMain = findViewById(R.id.btnFirestoreDatabaseUserToMain);
 
+
         loadData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 warningNoData.setVisibility(View.GONE);
                 showProgressBar();
-                Log.i(TAG, "load user data from database for user id: " + authUserId);
+                Log.i(TAG, "load user data from firestore database for user id: " + authUserId);
                 if (!authUserId.equals("")) {
-                    mDatabase.child("users").child(authUserId).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                    DocumentReference docRef = firestoreDatabase.collection(CHILD_USERS).document(authUserId);
+                    docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
-                        public void onComplete(@NonNull Task<DataSnapshot> task) {
-                            hideProgressBar();
-                            if (!task.isSuccessful()) {
-                                Log.e(TAG, "Error getting data", task.getException());
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            Log.i(TAG, "success on loading data from firestore database");
+                            System.out.println("*** " + documentSnapshot.toString());
+                            String un = (String) documentSnapshot.get("userName");
+                            System.out.println("*** un: " + un);
+                            UserFirestoreModel userModel = documentSnapshot.toObject(UserFirestoreModel.class);
+                            if (userModel == null) {
+                                Log.i(TAG, "userModel is null, show message");
+                                warningNoData.setVisibility(View.VISIBLE);
+                                // get data from user
+                                userId.setText(authUserId);
+                                userEmail.setText(authUserEmail);
+                                userName.setText(usernameFromEmail(authUserEmail));
+                                userPublicKey.setText("not in use");
+                                userPhotoUrl.setText(authPhotoUrl);
+                                hideProgressBar();
                             } else {
-                                // check for a null value means no user data were saved before
-                                UserModel userModel = task.getResult().getValue(UserModel.class);
-                                Log.i(TAG, String.valueOf(userModel));
-                                if (userModel == null) {
-                                    Log.i(TAG, "userModel is null, show message");
-                                    warningNoData.setVisibility(View.VISIBLE);
-                                    // get data from user
-                                    userId.setText(authUserId);
-                                    userEmail.setText(authUserEmail);
-                                    userName.setText(usernameFromEmail(authUserEmail));
-                                    userPublicKey.setText("not in use");
-                                    userPhotoUrl.setText(authPhotoUrl);
-                                } else {
-                                    Log.i(TAG, "userModel email: " + userModel.getUserMail());
-                                    warningNoData.setVisibility(View.GONE);
-                                    // get data from user
-                                    userId.setText(authUserId);
-                                    userEmail.setText(userModel.getUserMail());
-                                    userName.setText(userModel.getUserName());
-                                    userPublicKey.setText(userModel.getUserPublicKey());
-                                    userPhotoUrl.setText(userModel.getUserPhotoUrl());
-                                }
+                                Log.i(TAG, "userModel email: " + userModel.getUserMail());
+                                warningNoData.setVisibility(View.GONE);
+                                // get data from user
+                                userId.setText(authUserId);
+                                userEmail.setText(userModel.getUserMail());
+                                userName.setText(userModel.getUserName());
+                                userPublicKey.setText(userModel.getUserPublicKey());
+                                userPhotoUrl.setText(userModel.getUserPhotoUrl());
+                                hideProgressBar();
                             }
                         }
+
                     });
                 } else {
                     Log.i(TAG, "load user data - sign in a user before loading");
@@ -123,7 +136,7 @@ public class FirestoreDatabaseUserActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 showProgressBar();
-                Log.i(TAG, "save user data from database for user id: " + authUserId);
+                Log.i(TAG, "save user data to firestore database for user id: " + authUserId);
                 if (!authUserId.equals("")) {
                     if (!Objects.requireNonNull(userId.getText()).toString().equals("")) {
                         warningNoData.setVisibility(View.GONE);
@@ -221,17 +234,7 @@ public class FirestoreDatabaseUserActivity extends AppCompatActivity {
                 userData += "\nno photo url available";
             }
             signedInUser.setText(userData);
-            /*
-            mBinding.status.setText(getString(R.string.emailpassword_status_fmt,
-                    user.getEmail(), user.isEmailVerified()));
-            mBinding.detail.setText(getString(R.string.firebase_status_fmt, user.getUid()));
 
-            mBinding.emailPasswordButtons.setVisibility(View.GONE);
-            mBinding.emailPasswordFields.setVisibility(View.GONE);
-            mBinding.signedInButtons.setVisibility(View.VISIBLE);
-
-
-             */
             if (user.isEmailVerified()) {
 //                mBinding.verifyEmailButton.setVisibility(View.GONE);
             } else {
@@ -239,26 +242,32 @@ public class FirestoreDatabaseUserActivity extends AppCompatActivity {
             }
         } else {
             signedInUser.setText(null);
- /*
-            mBinding.detail.setText(null);
 
-            mBinding.emailPasswordButtons.setVisibility(View.VISIBLE);
-            mBinding.emailPasswordFields.setVisibility(View.VISIBLE);
-            mBinding.signedInButtons.setVisibility(View.GONE);
-
-  */
         }
     }
 
     // try to read the entry for the signed-in user in RealtimeDatabase
     private void readUserDatabase(FirebaseUser user) {
 
-
     }
 
     public void writeNewUser(String userId, String name, String email, String photoUrl, String publicKey) {
-        UserModel user = new UserModel(name, email, photoUrl, publicKey);
-        mDatabase.child("users").child(userId).setValue(user);
+        // user is online at this time
+        UserFirestoreModel user = new UserFirestoreModel(name, email, photoUrl, publicKey, true);
+        firestoreDatabase.collection(CHILD_USERS).document(userId)
+                .set(user)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.i(TAG, "DocumentSnapshot successfully written for userId: " + userId);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.i(TAG, "Error writing document for userId: " + userId, e);
+                    }
+                });
     }
 
     public void showProgressBar() {

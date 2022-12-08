@@ -16,9 +16,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 
 import java.util.Objects;
 
@@ -30,6 +35,10 @@ public class MainActivity extends AppCompatActivity {
     static final String TAG = "Main";
 
     private FirebaseAuth mAuth;
+
+    FirebaseFirestore firestoreDatabase = FirebaseFirestore.getInstance();
+    private static final String CHILD_USERS = "users";
+    CollectionReference userRef = firestoreDatabase.collection(CHILD_USERS);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +100,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Log.i(TAG, "sign out the current user");
+                // set user onlineStatus in Firestore users to false
+                setFirestoreUserOnlineStatus(mAuth.getCurrentUser().getUid(), false);
                 mAuth.signOut();
                 signedInUser.setText(null);
             }
@@ -266,6 +277,23 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void setFirestoreUserOnlineStatus(String userId, boolean onlineStatus) {
+            firestoreDatabase.collection(CHILD_USERS).document(userId)
+                    .update("userOnline", onlineStatus)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.i(TAG, "DocumentSnapshot update successfully written for userId: " + userId);
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.i(TAG, "Error updating document for userId: " + userId, e);
+                        }
+                    });
+    }
+
     public void createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
@@ -292,6 +320,7 @@ public class MainActivity extends AppCompatActivity {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser != null){
             reload();
+            setFirestoreUserOnlineStatus(currentUser.getUid(), true);
         } else {
             signedInUser.setText(null);
         }
