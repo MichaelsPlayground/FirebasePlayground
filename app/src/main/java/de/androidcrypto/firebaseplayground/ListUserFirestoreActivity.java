@@ -19,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -26,7 +27,9 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -39,7 +42,8 @@ import de.androidcrypto.firebaseplayground.models.UserFirestoreModel;
 public class ListUserFirestoreActivity extends AppCompatActivity {
 
     com.google.android.material.textfield.TextInputEditText signedInUser;
-    com.google.android.material.textfield.TextInputEditText userId, userEmail, userPhotoUrl, userPublicKey, userName;
+    SwitchMaterial listOnlineUserOnly;
+    //com.google.android.material.textfield.TextInputEditText userId, userEmail, userPhotoUrl, userPublicKey, userName;
     TextView warningNoData;
 
     static final String TAG = "ListUserFirestore";
@@ -59,6 +63,7 @@ public class ListUserFirestoreActivity extends AppCompatActivity {
 
         signedInUser = findViewById(R.id.etFirestoreDatabaseUserSignedInUser);
         progressBar = findViewById(R.id.pbFirestoreDatabaseUser);
+        listOnlineUserOnly = findViewById(R.id.swFirestoreDatabaseUserListOnlineOnly);
 
         userListView = findViewById(R.id.lvListUserFirestore);
 
@@ -80,34 +85,67 @@ public class ListUserFirestoreActivity extends AppCompatActivity {
                 List<String> emailList = new ArrayList<>();
                 List<String> displayNameList = new ArrayList<>();
 
-                firestoreDatabase.collection(CHILD_USERS).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        Log.i(TAG, "listUser on firestore complete");
-                        if(task.isSuccessful()){
-                            Log.i(TAG, "listUser on firestore complete and successful");
-                            for(QueryDocumentSnapshot document : task.getResult()) {
-                                UserFirestoreModel userFirestoreModel = document.toObject(UserFirestoreModel.class);
-                                final String displayName;
-                                if (TextUtils.isEmpty(userFirestoreModel.getUserName())) {
-                                    displayName = "";
-                                } else {
-                                    displayName = userFirestoreModel.getUserName();
+                if (listOnlineUserOnly.isChecked()) {
+                    // list online user only
+                    CollectionReference onlineUserReference = firestoreDatabase.collection(CHILD_USERS);
+                    Query query = onlineUserReference.whereEqualTo("userOnline", true);
+                    query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            Log.i(TAG, "listUser on firestore complete");
+                            if (task.isSuccessful()) {
+                                Log.i(TAG, "listUser on firestore complete and successful");
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    UserFirestoreModel userFirestoreModel = document.toObject(UserFirestoreModel.class);
+                                    final String displayName;
+                                    if (TextUtils.isEmpty(userFirestoreModel.getUserName())) {
+                                        displayName = "";
+                                    } else {
+                                        displayName = userFirestoreModel.getUserName();
+                                    }
+                                    arrayList.add(userFirestoreModel.getUserMail() + " " + displayName);
+                                    uidList.add(document.getId());
+                                    emailList.add(userFirestoreModel.getUserMail());
+                                    displayNameList.add(displayName);
                                 }
-                                arrayList.add(userFirestoreModel.getUserMail() + " " + displayName);
-                                uidList.add(document.getId());
-                                emailList.add(userFirestoreModel.getUserMail());
-                                displayNameList.add(displayName);
+                                ListView usersListView = (ListView) findViewById(R.id.lvListUserFirestore);
+                                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(ListUserFirestoreActivity.this, android.R.layout.simple_list_item_1, arrayList);
+                                usersListView.setAdapter(arrayAdapter);
+                            } else {
+                                Log.d(TAG, "Error getting documents: ", task.getException());
                             }
-                            ListView usersListView = (ListView) findViewById(R.id.lvListUserFirestore);
-                            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(ListUserFirestoreActivity.this, android.R.layout.simple_list_item_1, arrayList);
-                            usersListView.setAdapter(arrayAdapter);
-                        } else {
-                            Log.d("MissionActivity", "Error getting documents: ", task.getException());
                         }
-                    }
-                });
-
+                    });
+                } else {
+                    // list all user regardles online status
+                    firestoreDatabase.collection(CHILD_USERS).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            Log.i(TAG, "listUser on firestore complete");
+                            if (task.isSuccessful()) {
+                                Log.i(TAG, "listUser on firestore complete and successful");
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    UserFirestoreModel userFirestoreModel = document.toObject(UserFirestoreModel.class);
+                                    final String displayName;
+                                    if (TextUtils.isEmpty(userFirestoreModel.getUserName())) {
+                                        displayName = "";
+                                    } else {
+                                        displayName = userFirestoreModel.getUserName();
+                                    }
+                                    arrayList.add(userFirestoreModel.getUserMail() + " " + displayName);
+                                    uidList.add(document.getId());
+                                    emailList.add(userFirestoreModel.getUserMail());
+                                    displayNameList.add(displayName);
+                                }
+                                ListView usersListView = (ListView) findViewById(R.id.lvListUserFirestore);
+                                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(ListUserFirestoreActivity.this, android.R.layout.simple_list_item_1, arrayList);
+                                usersListView.setAdapter(arrayAdapter);
+                            } else {
+                                Log.d(TAG, "Error getting documents: ", task.getException());
+                            }
+                        }
+                    });
+                }
                 hideProgressBar();
 
                 userListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
