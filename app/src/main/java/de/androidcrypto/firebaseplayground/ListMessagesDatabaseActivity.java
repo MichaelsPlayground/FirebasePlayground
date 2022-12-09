@@ -76,6 +76,7 @@ public class ListMessagesDatabaseActivity extends AppCompatActivity {
         receiveUserId = intent.getStringExtra("UID");
         if (receiveUserId != null) {
             Log.i(TAG, "selectedUid: " + receiveUserId);
+            listMessages();
         }
         receiveUserEmail = intent.getStringExtra("EMAIL");
         if (receiveUserEmail != null) {
@@ -215,6 +216,82 @@ public class ListMessagesDatabaseActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void listMessages() {
+        Log.i(TAG, "list messages start");
+        if (TextUtils.isEmpty(receiveUserId)) {
+            Log.i(TAG, "no receipient selected, abort");
+            Toast.makeText(getApplicationContext(),
+                    "please select a receipient first",
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        String roomId = getRoomId(authUserId, receiveUserId);
+        Log.i(TAG, "listing messages in roomId: " + roomId);
+
+        DatabaseReference messagesRef = mDatabase.child("messages").child(roomId);
+        System.out.println("messagesRef.getKey: " + messagesRef.getKey());
+
+        List<String> arrayList = new ArrayList<>();
+        List<String> uidList = new ArrayList<>();
+        List<String> emailList = new ArrayList<>();
+        List<String> displayNameList = new ArrayList<>();
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(ListMessagesDatabaseActivity.this, android.R.layout.simple_list_item_1, arrayList);
+        userListView.setAdapter(arrayAdapter);
+        messagesRef.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String previousChildName) {
+                Log.i(TAG, "onChildAdded:" + dataSnapshot.getKey());
+                System.out.println("ds existsf: " + dataSnapshot.exists());
+                final String message = Objects.requireNonNull(dataSnapshot.child("message").getValue()).toString();
+                final boolean messageEncrypted = (boolean) Objects.requireNonNull(dataSnapshot.child("messageEncrypted").getValue());
+                final long messageTime = (long) Objects.requireNonNull(dataSnapshot.child("messageTime").getValue());
+                final String senderId = Objects.requireNonNull(dataSnapshot.child("senderId").getValue()).toString();
+
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                String timeString  = dateFormat.format(messageTime);
+                String dataList = message + " from " + senderId + " at " + timeString + " is enc: " + messageEncrypted;
+                arrayList.add(dataList);
+                arrayAdapter.notifyDataSetChanged();
+
+                hideProgressBar();
+                        /*
+                        uidList.add(uid);
+                        emailList.add(email);
+                        displayNameList.add(displayName);
+                         */
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.i(TAG, "onCancelled error: " + error.toString());
+            }
+
+            @Override
+            protected void finalize() throws Throwable {
+                hideProgressBar();
+                super.finalize();
+            }
+
+        });
+    }
+
 
     /**
      * service methods
