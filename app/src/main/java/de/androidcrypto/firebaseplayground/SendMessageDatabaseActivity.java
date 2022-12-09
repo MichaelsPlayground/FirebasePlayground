@@ -5,9 +5,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -15,10 +15,8 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -26,16 +24,15 @@ import java.util.Date;
 import java.util.Objects;
 
 import de.androidcrypto.firebaseplayground.models.MessageModel;
-import de.androidcrypto.firebaseplayground.models.UserModel;
 
-public class SendMessageActivity extends AppCompatActivity {
+public class SendMessageDatabaseActivity extends AppCompatActivity {
 
     com.google.android.material.textfield.TextInputEditText signedInUser, receiveUser;
     com.google.android.material.textfield.TextInputEditText edtMessage, edtRoomId, userPhotoUrl, userPublicKey, userName;
     com.google.android.material.textfield.TextInputLayout edtMessageLayout;
     TextView warningNoData;
 
-    static final String TAG = "SendMessage";
+    static final String TAG = "SendMessageRtDatabase";
     // get the data from auth
     private static String authUserId = "", authUserEmail, authDisplayName, authPhotoUrl;
     private static String receiveUserId = "", receiveUserEmail = "", receiveUserDisplayName = "";
@@ -47,7 +44,7 @@ public class SendMessageActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_send_message);
+        setContentView(R.layout.activity_send_message_database);
 
         signedInUser = findViewById(R.id.etSendMessageSignedInUser);
         receiveUser = findViewById(R.id.etSendMessageReceiveUser);
@@ -104,7 +101,10 @@ public class SendMessageActivity extends AppCompatActivity {
         selectRecipient.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(SendMessageActivity.this, ListUserActivity.class);
+                Log.i(TAG, "select receipient");
+                //Intent intent = new Intent(SendMessageDatabaseActivity.this, ListUserDatabaseActivity.class);
+                Intent intent = new Intent(SendMessageDatabaseActivity.this, SelectUserDatabaseActivity.class);
+                intent.putExtra("CALLER_ACTIVITY", "SEND_MESSAGE_DATABASE");
                 startActivity(intent);
                 finish();
             }
@@ -113,7 +113,7 @@ public class SendMessageActivity extends AppCompatActivity {
         backToMain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(SendMessageActivity.this, MainActivity.class);
+                Intent intent = new Intent(SendMessageDatabaseActivity.this, MainActivity.class);
                 startActivity(intent);
                 finish();
             }
@@ -135,21 +135,30 @@ Display Name: klaus.zwang.1934@gmail.com
         edtMessageLayout.setEndIconOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.i(TAG, "send message");
+                // check for selected receipient
+                if (TextUtils.isEmpty(receiveUserId)) {
+                    Log.i(TAG, "no receipient selected, abort");
+                    Toast.makeText(getApplicationContext(),
+                            "please select a receipient first",
+                            Toast.LENGTH_LONG).show();
+                    return;
+                }
                 showProgressBar();
                 // todo get the real uids, remove these line
+                /*
                 if (authUserId.equals("VgNGhMth85Y0Szg6FxLMcWkEpmA3")) {
                     receiveUserId = "0QCS5u2UnxYURlbntvVTA6ZTbaO2";
                 } else {
                     authUserId = "0QCS5u2UnxYURlbntvVTA6ZTbaO2";
                     receiveUserId = "VgNGhMth85Y0Szg6FxLMcWkEpmA3";
                 }
-
+                */
                 // get the roomId by comparing 2 UID strings
                 String roomId = getRoomId(authUserId, receiveUserId);
                 String messageString = edtMessage.getText().toString();
                 edtRoomId.setText(roomId);
-                Log.i(TAG, "message: " + messageString);
-                Log.i(TAG, "roomId: " + roomId);
+                Log.i(TAG, "message: " + messageString + " send to roomId: " + roomId);
                 // now we are going to send data to the database
                 long actualTime = new Date().getTime();
                 /*
@@ -165,6 +174,7 @@ Display Name: klaus.zwang.1934@gmail.com
                         "message written to database",
                         Toast.LENGTH_SHORT).show();
                 edtMessage.setText("");
+                hideProgressBar();
             }
         });
 
@@ -172,6 +182,7 @@ Display Name: klaus.zwang.1934@gmail.com
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.i(TAG, "old send method");
                 // todo get the real uids, remove the line
                 receiveUserId = "0QCS5u2UnxYURlbntvVTA6ZTbaO2";
                 // get the roomId by comparing 2 UID strings
@@ -204,11 +215,11 @@ Display Name: klaus.zwang.1934@gmail.com
      * service methods
      */
 
-    // compare two strings and build a new string: if a < b: ab if a > b: ba, if a = b: ab
+    // compare two strings and build a new string: if a < b: ab if a > b: b_a, if a = b: a_b
     private String getRoomId(String a, String b) {
         int compare = a.compareTo(b);
-        if (compare > 0) return b + a;
-        else return a + b;
+        if (compare > 0) return b + "_" + a;
+        else return a + "_" + b;
     }
 
     /**

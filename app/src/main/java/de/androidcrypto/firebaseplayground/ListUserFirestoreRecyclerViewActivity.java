@@ -38,6 +38,9 @@ import de.androidcrypto.firebaseplayground.models.UserFirestoreModel;
 
 public class ListUserFirestoreRecyclerViewActivity extends AppCompatActivity {
 
+    // improvement: https://www.freecodecamp.org/news/how-to-implement-swipe-for-options-in-recyclerview/
+    
+
     com.google.android.material.textfield.TextInputEditText signedInUser;
     SwitchMaterial listOnlineUserOnly;
     //com.google.android.material.textfield.TextInputEditText userId, userEmail, userPhotoUrl, userPublicKey, userName;

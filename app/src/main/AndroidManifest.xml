@@ -61,14 +61,14 @@
                 android:value="" />
         </activity>
         <activity
-            android:name=".SendMessageActivity"
+            android:name=".SendMessageDatabaseActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
-            android:name=".ListUserActivity"
+            android:name=".ListUserDatabaseActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
@@ -76,6 +76,13 @@
         </activity>
         <activity
             android:name=".ListUserFirestoreActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
+            android:name=".SelectUserDatabaseActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
@@ -96,7 +103,7 @@
                 android:value="" />
         </activity>
         <activity
-            android:name=".ListMessagesActivity"
+            android:name=".ListMessagesDatabaseActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"

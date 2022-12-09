@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/grey_300"
     android:orientation="vertical"
-    tools:context=".ListMessagesActivity">
+    tools:context=".SelectUserDatabaseActivity">
 
             <TextView
                 android:layout_width="match_parent"
@@ -14,13 +14,13 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
-                android:text="Database user profile"
+                android:text="Select a user in Realtime Database"
                 android:textAlignment="center"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
             <ProgressBar
-                android:id="@+id/pbListMessages"
+                android:id="@+id/pbDatabaseUser"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -64,16 +64,16 @@
                 android:layout_marginBottom="8dp" />
 
             <Button
-                android:id="@+id/btnListMessagesRun"
+                android:id="@+id/btnListUserRun"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
-                android:text="list messages" />
+                android:text="list user" />
 
     <Button
-        android:id="@+id/btnListMessagesToMain"
+        android:id="@+id/btnDatabaseUserToMain"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -82,11 +82,9 @@
         android:text="back to Main" />
 
             <ListView
-                android:id="@+id/lvListMessages"
+                android:id="@+id/lvListUser"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:transcriptMode="alwaysScroll"
-                android:stackFromBottom="true"
                 android:layout_marginBottom="2dp">
             </ListView>
 

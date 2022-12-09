@@ -13,7 +13,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NotificationManagerCompat;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -23,7 +22,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 
 import java.util.Objects;
 
@@ -164,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Log.i(TAG, "list user on database");
-                Intent intent = new Intent(MainActivity.this, ListUserActivity.class);
+                Intent intent = new Intent(MainActivity.this, ListUserDatabaseActivity.class);
                 startActivity(intent);
                 //finish();
             }
@@ -187,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Log.i(TAG, "send a message to another user");
-                Intent intent = new Intent(MainActivity.this, SendMessageActivity.class);
+                Intent intent = new Intent(MainActivity.this, SendMessageDatabaseActivity.class);
                 startActivity(intent);
                 //finish();
             }
@@ -198,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Log.i(TAG, "list messages on database");
-                Intent intent = new Intent(MainActivity.this, ListMessagesActivity.class);
+                Intent intent = new Intent(MainActivity.this, ListMessagesDatabaseActivity.class);
                 startActivity(intent);
                 //finish();
             }

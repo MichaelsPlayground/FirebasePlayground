@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -26,21 +25,18 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import de.androidcrypto.firebaseplayground.models.UserModel;
-
-public class ListUserActivity extends AppCompatActivity {
+public class ListUserDatabaseActivity extends AppCompatActivity {
 
     com.google.android.material.textfield.TextInputEditText signedInUser;
     com.google.android.material.textfield.TextInputEditText userId, userEmail, userPhotoUrl, userPublicKey, userName;
     TextView warningNoData;
 
-    static final String TAG = "ListUser";
+    static final String TAG = "ListUserDatabase";
     // get the data from auth
     private static String authUserId = "", authUserEmail, authDisplayName, authPhotoUrl;
     ListView userListView;
@@ -52,7 +48,7 @@ public class ListUserActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list_user);
+        setContentView(R.layout.activity_list_user_database);
 
         signedInUser = findViewById(R.id.etDatabaseUserSignedInUser);
         progressBar = findViewById(R.id.pbDatabaseUser);
@@ -81,7 +77,7 @@ public class ListUserActivity extends AppCompatActivity {
                 List<String> uidList = new ArrayList<>();
                 List<String> emailList = new ArrayList<>();
                 List<String> displayNameList = new ArrayList<>();
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(ListUserActivity.this, android.R.layout.simple_list_item_1, arrayList);
+                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(ListUserDatabaseActivity.this, android.R.layout.simple_list_item_1, arrayList);
                 userListView.setAdapter(arrayAdapter);
                 usersRef.addChildEventListener(new ChildEventListener() {
                     @Override
@@ -129,7 +125,7 @@ public class ListUserActivity extends AppCompatActivity {
                         String uidSelected = uidList.get(position);
                         String emailSelected = emailList.get(position);
                         String displayNameSelected = displayNameList.get(position);
-                        Intent intent = new Intent(ListUserActivity.this, SendMessageActivity.class);
+                        Intent intent = new Intent(ListUserDatabaseActivity.this, SendMessageDatabaseActivity.class);
                         intent.putExtra("UID", uidSelected);
                         intent.putExtra("EMAIL", emailSelected);
                         intent.putExtra("DISPLAYNAME", displayNameSelected);
@@ -145,13 +141,12 @@ public class ListUserActivity extends AppCompatActivity {
         backToMain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(ListUserActivity.this, MainActivity.class);
+                Intent intent = new Intent(ListUserDatabaseActivity.this, MainActivity.class);
                 startActivity(intent);
                 finish();
             }
         });
     }
-
 
     @Override
     public void onStart() {
