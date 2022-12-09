@@ -48,7 +48,11 @@ public class SelectUserDatabaseActivity extends AppCompatActivity {
     static final String TAG = "SelectUserDatabase";
     // get the data from auth
     private static String authUserId = "", authUserEmail, authDisplayName, authPhotoUrl;
-    ListView userListView;
+    private ListView userListView;
+    private List<String> arrayList = new ArrayList<>();
+    private List<String> uidList = new ArrayList<>();
+    private List<String> emailList = new ArrayList<>();
+    private List<String> displayNameList = new ArrayList<>();
 
     private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
@@ -94,6 +98,32 @@ public class SelectUserDatabaseActivity extends AppCompatActivity {
         mDatabase = FirebaseDatabase.getInstance("https://fir-playground-1856e-default-rtdb.europe-west1.firebasedatabase.app/").getReference();
         // the following can be used if the database server location is us
         //mDatabase = FirebaseDatabase.getInstance().getReference();
+
+        // run directly
+        listUser();
+        userListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                String uidSelected = uidList.get(position);
+                String emailSelected = emailList.get(position);
+                String displayNameSelected = displayNameList.get(position);
+                returnIntent.putExtra("UID", uidSelected);
+                returnIntent.putExtra("EMAIL", emailSelected);
+                returnIntent.putExtra("DISPLAYNAME", displayNameSelected);
+                startActivity(returnIntent);
+                finish();
+                        /*
+                        Intent intent = new Intent(SelectUserDatabaseActivity.this, SendMessageDatabaseActivity.class);
+                        intent.putExtra("UID", uidSelected);
+                        intent.putExtra("EMAIL", emailSelected);
+                        intent.putExtra("DISPLAYNAME", displayNameSelected);
+                        startActivity(intent);
+                        finish();
+                         */
+            }
+        });
+
+
 
         Button listUser = findViewById(R.id.btnListUserRun);
         listUser.setOnClickListener(new View.OnClickListener() {
@@ -181,6 +211,56 @@ public class SelectUserDatabaseActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+
+    private void listUser() {
+        showProgressBar();
+        DatabaseReference usersRef = mDatabase.child("users");
+        arrayList = new ArrayList<>();
+        uidList = new ArrayList<>();
+        emailList = new ArrayList<>();
+        displayNameList = new ArrayList<>();
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(SelectUserDatabaseActivity.this, android.R.layout.simple_list_item_1, arrayList);
+        userListView.setAdapter(arrayAdapter);
+        usersRef.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String previousChildName) {
+                final String email = Objects.requireNonNull(dataSnapshot.child("userMail").getValue()).toString();
+                final String displayName;
+                if (dataSnapshot.child("userName").getValue() != null) {
+                    displayName = dataSnapshot.child("userMail").getValue().toString();
+                } else {
+                    displayName = "";
+                }
+                final String uid = dataSnapshot.getKey().toString();
+                arrayList.add(email + " " + displayName);
+                arrayAdapter.notifyDataSetChanged();
+                uidList.add(uid);
+                emailList.add(email);
+                displayNameList.add(displayName);
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+        hideProgressBar();
     }
 
     @Override

@@ -2,6 +2,7 @@ package de.androidcrypto.firebaseplayground;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -33,13 +34,15 @@ import java.util.Objects;
 
 public class ListMessagesDatabaseActivity extends AppCompatActivity {
 
-    com.google.android.material.textfield.TextInputEditText signedInUser;
+    com.google.android.material.textfield.TextInputEditText signedInUser, receiveUser;
     com.google.android.material.textfield.TextInputEditText userId, userEmail, userPhotoUrl, userPublicKey, userName;
     TextView warningNoData;
 
     static final String TAG = "ListMessagesDatabase";
     // get the data from auth
     private static String authUserId = "", authUserEmail, authDisplayName, authPhotoUrl;
+    private static String receiveUserId = "", receiveUserEmail = "", receiveUserDisplayName = "";
+
     ListView userListView;
 
     private DatabaseReference mDatabase;
@@ -52,6 +55,7 @@ public class ListMessagesDatabaseActivity extends AppCompatActivity {
         setContentView(R.layout.activity_list_messages_database);
 
         signedInUser = findViewById(R.id.etListMessagesDatabaseSignedInUser);
+        receiveUser = findViewById(R.id.etListMessagesReceiveUser);
         progressBar = findViewById(R.id.pbListMessagesDatabase);
 
         userListView = findViewById(R.id.lvListMessagesDatabase);
@@ -68,20 +72,44 @@ public class ListMessagesDatabaseActivity extends AppCompatActivity {
         // the following can be used if the database server location is us
         //mDatabase = FirebaseDatabase.getInstance().getReference();
 
+        Intent intent = getIntent();
+        receiveUserId = intent.getStringExtra("UID");
+        if (receiveUserId != null) {
+            Log.i(TAG, "selectedUid: " + receiveUserId);
+        }
+        receiveUserEmail = intent.getStringExtra("EMAIL");
+        if (receiveUserEmail != null) {
+            Log.i(TAG, "selectedEmail: " + receiveUserEmail);
+        }
+        receiveUserDisplayName = intent.getStringExtra("DISPLAYNAME");
+        if (receiveUserDisplayName != null) {
+            Log.i(TAG, "selectedDisplayName: " + receiveUserDisplayName);
+        }
+        String receiveUserString = "Email: " + receiveUserEmail;
+        receiveUserString += "\nUID: " + receiveUserId;
+        receiveUserString += "\nDisplay Name: " + receiveUserDisplayName;
+        receiveUser.setText(receiveUserString);
+        Log.i(TAG, "receiveUser: " + receiveUserString);
+
         Button listMessages = findViewById(R.id.btnListMessagesDatabaseRun);
         listMessages.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Log.i(TAG, "list messages start");
-                showProgressBar();
-                // todo this are static room ids
-                authUserId = "VgNGhMth85Y0Szg6FxLMcWkEpmA3";
-                String otherUserId = "0QCS5u2UnxYURlbntvVTA6ZTbaO2";
+                if (TextUtils.isEmpty(receiveUserId)) {
+                    Log.i(TAG, "no receipient selected, abort");
+                    Toast.makeText(getApplicationContext(),
+                            "please select a receipient first",
+                            Toast.LENGTH_LONG).show();
+                    return;
+                }
 
-                String roomId = getRoomId(authUserId, otherUserId);
+                String roomId = getRoomId(authUserId, receiveUserId);
                 Log.i(TAG, "listing messages in roomId: " + roomId);
 
                 DatabaseReference messagesRef = mDatabase.child("messages").child(roomId);
+                System.out.println("messagesRef.getKey: " + messagesRef.getKey());
+
                 List<String> arrayList = new ArrayList<>();
                 List<String> uidList = new ArrayList<>();
                 List<String> emailList = new ArrayList<>();
@@ -92,25 +120,15 @@ public class ListMessagesDatabaseActivity extends AppCompatActivity {
                     @Override
                     public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String previousChildName) {
                         Log.i(TAG, "onChildAdded:" + dataSnapshot.getKey());
-
+                        System.out.println("ds existsf: " + dataSnapshot.exists());
                         final String message = Objects.requireNonNull(dataSnapshot.child("message").getValue()).toString();
                         final boolean messageEncrypted = (boolean) Objects.requireNonNull(dataSnapshot.child("messageEncrypted").getValue());
                         final long messageTime = (long) Objects.requireNonNull(dataSnapshot.child("messageTime").getValue());
                         final String senderId = Objects.requireNonNull(dataSnapshot.child("senderId").getValue()).toString();
-/*
-                        final String email = Objects.requireNonNull(dataSnapshot.child("userMail").getValue()).toString();
-                        final String displayName;
-                        if (dataSnapshot.child("userName").getValue() != null) {
-                            displayName = dataSnapshot.child("userMail").getValue().toString();
-                        } else {
-                            displayName = "";
-                        }
-                        final String uid = dataSnapshot.getKey().toString();
 
- */
                         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                         String timeString  = dateFormat.format(messageTime);
-                        String dataList = message + " from " + senderId + " " + timeString + " is enc: " + messageEncrypted;
+                        String dataList = message + " from " + senderId + " at " + timeString + " is enc: " + messageEncrypted;
                         arrayList.add(dataList);
                         arrayAdapter.notifyDataSetChanged();
 
@@ -139,7 +157,13 @@ public class ListMessagesDatabaseActivity extends AppCompatActivity {
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
+                        Log.i(TAG, "onCancelled error: " + error.toString());
+                    }
 
+                    @Override
+                    protected void finalize() throws Throwable {
+                        hideProgressBar();
+                        super.finalize();
                     }
 
                 });
@@ -164,6 +188,7 @@ public class ListMessagesDatabaseActivity extends AppCompatActivity {
                          */
                     }
                 });
+
             }
         });
 
