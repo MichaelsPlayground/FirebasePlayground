@@ -53,14 +53,7 @@ public class SendMessageFirestoreActivity extends AppCompatActivity {
         edtMessageLayout = findViewById(R.id.etSendMessageFirestoreMessageLayout);
         edtMessage = findViewById(R.id.etSendMessageFirestoreMessage);
         edtRoomId = findViewById(R.id.etSendMessageFirestoreRoomId);
-/*
-        warningNoData = findViewById(R.id.tvDatabaseUserNoData);
-        userId = findViewById(R.id.etDatabaseUserUserId);
-        userEmail = findViewById(R.id.etDatabaseUserUserEmail);
-        userPhotoUrl = findViewById(R.id.etDatabaseUserPhotoUrl);
-        userPublicKey = findViewById(R.id.etDatabaseUserPublicKey);
-        userName = findViewById(R.id.etDatabaseUserUserName);
-*/
+
         // don't show the keyboard on startUp
         //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 

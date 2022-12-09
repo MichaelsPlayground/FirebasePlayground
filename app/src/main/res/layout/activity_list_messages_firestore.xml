@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/grey_300"
     android:orientation="vertical"
-    tools:context=".SelectUserFirestoreActivity">
+    tools:context=".ListMessagesFirestoreActivity">
 
     <TextView
         android:layout_width="match_parent"
@@ -14,13 +14,13 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
-        android:text="Select a user in Firestore Database"
+        android:text="List all messages on Firestore Database"
         android:textAlignment="center"
         android:textSize="16sp"
         android:textStyle="bold" />
 
     <ProgressBar
-        android:id="@+id/pbFirestoreUser"
+        android:id="@+id/pbListMessagesFirestore"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -28,7 +28,7 @@
         android:visibility="invisible" />
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/etFirestoreUserSignedInUserLayout"
+        android:id="@+id/etListMessagesFirestoreSignedInUserLayout"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -46,7 +46,37 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etFirestoreUserSignedInUser"
+            android:id="@+id/etListMessagesFirestoreSignedInUser"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:focusable="false"
+            android:text=""
+            android:textSize="14sp"
+            android:visibility="visible"
+            tools:ignore="KeyboardInaccessibleWidget" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/etListMessagesReceiveUserLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:hint="receive user"
+        android:visibility="visible"
+        app:boxCornerRadiusBottomEnd="5dp"
+        app:boxCornerRadiusBottomStart="5dp"
+        app:boxCornerRadiusTopEnd="5dp"
+        app:boxCornerRadiusTopStart="5dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etListMessagesReceiveUser"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
@@ -63,29 +93,26 @@
         android:layout_marginTop="16dp"
         android:layout_marginBottom="8dp" />
 
-    <com.google.android.material.switchmaterial.SwitchMaterial
-        android:id="@+id/swFirestoreDatabaseRvUserListOnlineOnly"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:checked="false"
-        android:clickable="true"
-        android:text="list online user only"
-        android:textSize="18sp" />
-
     <Button
-        android:id="@+id/btnSelectUserFirestoreRun"
+        android:id="@+id/btnListMessagesFirestoreSelectRecipient"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
-        android:text="list user" />
+        android:text="select recipient" />
 
     <Button
-        android:id="@+id/btnFirestoreUserToMain"
+        android:id="@+id/btnListMessagesFirestoreRun"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:text="list messages" />
+
+    <Button
+        android:id="@+id/btnListMessagesFirestoreToMain"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -94,10 +121,12 @@
         android:text="back to Main" />
 
     <ListView
-        android:id="@+id/lvSelectUserFirestore"
+        android:id="@+id/lvListMessagesFirestore"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="2dp" />
+        android:layout_marginBottom="2dp"
+        android:stackFromBottom="true"
+        android:transcriptMode="alwaysScroll" />
 
     <com.google.android.material.divider.MaterialDivider
         android:layout_width="match_parent"

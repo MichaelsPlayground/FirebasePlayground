@@ -82,11 +82,11 @@ public class SelectUserDatabaseActivity extends AppCompatActivity {
             Log.i(TAG, "The activity was called directly and will return to MainActivity");
         }
         if (callerActivity.equals("SEND_MESSAGE_DATABASE")) {
-            Log.i(TAG, "The activity was called from SendMessageDatabase will return to the caller activity");
+            Log.i(TAG, "The activity was called from SendMessageDatabase and will return to the caller activity");
             returnIntent = new Intent(SelectUserDatabaseActivity.this, SendMessageDatabaseActivity.class);
         }
         if (callerActivity.equals("LIST_MESSAGE_DATABASE")) {
-            Log.i(TAG, "The activity was called from ListMessagesDatabase will return to the caller activity");
+            Log.i(TAG, "The activity was called from ListMessagesDatabase and will return to the caller activity");
             returnIntent = new Intent(SelectUserDatabaseActivity.this, ListMessagesDatabaseActivity.class);
         }
 

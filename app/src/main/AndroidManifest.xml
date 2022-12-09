@@ -96,6 +96,13 @@
                 android:value="" />
         </activity>
         <activity
+            android:name=".SelectUserFirestoreActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name=".ListUserFirestoreRecyclerViewActivity"
             android:exported="false">
             <meta-data
@@ -111,6 +118,13 @@
         </activity>
         <activity
             android:name=".ListMessagesDatabaseActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
+            android:name=".ListMessagesFirestoreActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
