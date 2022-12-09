@@ -239,6 +239,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button sendMessageFirestore = findViewById(R.id.btnMainFirestoreSendMessage);
+        sendMessageFirestore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.i(TAG, "send a message to another user in Firestorw");
+                Intent intent = new Intent(MainActivity.this, SendMessageFirestoreActivity.class);
+                startActivity(intent);
+                //finish();
+            }
+        });
+
         /**
          * storage section
          */

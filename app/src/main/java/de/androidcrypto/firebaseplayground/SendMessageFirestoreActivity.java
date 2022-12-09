@@ -1,8 +1,5 @@
 package de.androidcrypto.firebaseplayground;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -12,6 +9,9 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -25,14 +25,14 @@ import java.util.Objects;
 
 import de.androidcrypto.firebaseplayground.models.MessageModel;
 
-public class SendMessageDatabaseActivity extends AppCompatActivity {
+public class SendMessageFirestoreActivity extends AppCompatActivity {
 
     com.google.android.material.textfield.TextInputEditText signedInUser, receiveUser;
     com.google.android.material.textfield.TextInputEditText edtMessage, edtRoomId, userPhotoUrl, userPublicKey, userName;
     com.google.android.material.textfield.TextInputLayout edtMessageLayout;
     TextView warningNoData;
 
-    static final String TAG = "SendMessageRtDatabase";
+    static final String TAG = "SendMessageFirestore";
     // get the data from auth
     private static String authUserId = "", authUserEmail, authDisplayName, authPhotoUrl;
     private static String receiveUserId = "", receiveUserEmail = "", receiveUserDisplayName = "";
@@ -44,15 +44,15 @@ public class SendMessageDatabaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_send_message_database);
+        setContentView(R.layout.activity_send_message_firestore);
 
-        signedInUser = findViewById(R.id.etSendMessageDatabaseSignedInUser);
-        receiveUser = findViewById(R.id.etSendMessageDatabaseReceiveUser);
-        progressBar = findViewById(R.id.pbSendMessageDatabase);
+        signedInUser = findViewById(R.id.etSendMessageFirestoreSignedInUser);
+        receiveUser = findViewById(R.id.etSendMessageFirestoreReceiveUser);
+        progressBar = findViewById(R.id.pbSendMessageFirestore);
 
-        edtMessageLayout = findViewById(R.id.etSendMessageDatabaseMessageLayout);
-        edtMessage = findViewById(R.id.etSendMessageDatabaseMessage);
-        edtRoomId = findViewById(R.id.etSendMessageDatabaseRoomId);
+        edtMessageLayout = findViewById(R.id.etSendMessageFirestoreMessageLayout);
+        edtMessage = findViewById(R.id.etSendMessageFirestoreMessage);
+        edtRoomId = findViewById(R.id.etSendMessageFirestoreRoomId);
 /*
         warningNoData = findViewById(R.id.tvDatabaseUserNoData);
         userId = findViewById(R.id.etDatabaseUserUserId);
@@ -95,16 +95,16 @@ public class SendMessageDatabaseActivity extends AppCompatActivity {
         //       Button loadData = findViewById(R.id.btnDatabaseUserLoad);
         //       Button savaData = findViewById(R.id.btnDatabaseUserSave);
 
-        Button selectRecipient = findViewById(R.id.btnSendMessageDatabaseSelectRecipient);
-        Button backToMain = findViewById(R.id.btnSendMessageDatabaseToMain);
+        Button selectRecipient = findViewById(R.id.btnSendMessageFirestoreSelectRecipient);
+        Button backToMain = findViewById(R.id.btnSendMessageFirestoreToMain);
 
         selectRecipient.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Log.i(TAG, "select receipient");
                 //Intent intent = new Intent(SendMessageDatabaseActivity.this, ListUserDatabaseActivity.class);
-                Intent intent = new Intent(SendMessageDatabaseActivity.this, SelectUserDatabaseActivity.class);
-                intent.putExtra("CALLER_ACTIVITY", "SEND_MESSAGE_DATABASE");
+                Intent intent = new Intent(SendMessageFirestoreActivity.this, SelectUserFirestoreActivity.class);
+                intent.putExtra("CALLER_ACTIVITY", "SEND_MESSAGE_FIRESTORE");
                 startActivity(intent);
                 finish();
             }
@@ -113,7 +113,7 @@ public class SendMessageDatabaseActivity extends AppCompatActivity {
         backToMain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(SendMessageDatabaseActivity.this, MainActivity.class);
+                Intent intent = new Intent(SendMessageFirestoreActivity.this, MainActivity.class);
                 startActivity(intent);
                 finish();
             }
@@ -180,7 +180,7 @@ Display Name: klaus.zwang.1934@gmail.com
         });
 
         /*
-        Button send = findViewById(R.id.btnSendMessageDatabaseSend);
+        Button send = findViewById(R.id.btnSendMessageFirestoreSend);
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -195,6 +195,9 @@ Display Name: klaus.zwang.1934@gmail.com
                 Log.i(TAG, "roomId: " + roomId);
                 // now we are going to send data to the database
                 long actualTime = new Date().getTime();
+                //retrieve the time string in GMT
+                //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                //String millisInString  = dateFormat.format(new Date());
                 MessageModel messageModel = new MessageModel(authUserId, messageString, actualTime, false);
                 mDatabaseReference.child("messages").child(roomId).push().setValue(messageModel);
                 // without push there is no new chatId key
@@ -204,7 +207,8 @@ Display Name: klaus.zwang.1934@gmail.com
                         Toast.LENGTH_SHORT).show();
             }
         });
-        */
+         */
+
 
     }
 

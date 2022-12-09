@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/grey_300"
     android:orientation="vertical"
-    tools:context=".SendMessageDatabaseActivity">
+    tools:context=".SendMessageFirestoreActivity">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -23,13 +23,13 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
-                android:text="Send message to other user in Realtime Database"
+                android:text="Send message to other user in Firestore Database"
                 android:textAlignment="center"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
             <ProgressBar
-                android:id="@+id/pbSendMessageDatabase"
+                android:id="@+id/pbSendMessageFirestore"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -37,7 +37,7 @@
                 android:visibility="visible" />
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/etSendMessageDatabaseSignedInUserLayout"
+                android:id="@+id/etSendMessageFirestoreSignedInUserLayout"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -55,7 +55,7 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etSendMessageDatabaseSignedInUser"
+                    android:id="@+id/etSendMessageFirestoreSignedInUser"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
@@ -67,7 +67,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/etSendMessageDatabaseReceiveUserLayout"
+                android:id="@+id/etSendMessageFirestoreReceiveUserLayout"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -85,7 +85,7 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etSendMessageDatabaseReceiveUser"
+                    android:id="@+id/etSendMessageFirestoreReceiveUser"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
@@ -103,7 +103,7 @@
                 android:layout_marginBottom="8dp" />
 
             <Button
-                android:id="@+id/btnSendMessageDatabaseSelectRecipient"
+                android:id="@+id/btnSendMessageFirestoreSelectRecipient"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
@@ -112,7 +112,7 @@
                 android:text="select recipient" />
 
             <Button
-                android:id="@+id/btnSendMessageDatabaseToMain"
+                android:id="@+id/btnSendMessageFirestoreToMain"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
@@ -127,7 +127,7 @@
                 android:layout_marginBottom="8dp" />
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/etSendMessageDatabaseMessageLayout"
+                android:id="@+id/etSendMessageFirestoreMessageLayout"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -150,7 +150,7 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etSendMessageDatabaseMessage"
+                    android:id="@+id/etSendMessageFirestoreMessage"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
@@ -164,7 +164,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/etSendMessageDatabaseRoomIdLayout"
+                android:id="@+id/etSendMessageFirestoreRoomIdLayout"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -182,7 +182,7 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etSendMessageDatabaseRoomId"
+                    android:id="@+id/etSendMessageFirestoreRoomId"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
@@ -194,7 +194,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <Button
-                android:id="@+id/btnSendMessageDatabaseSend"
+                android:id="@+id/btnSendMessageFirestoreSend"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
