@@ -18,6 +18,13 @@
         android:theme="@style/Theme.FirebasePlayground"
         tools:targetApi="31">
         <activity
+            android:name=".ChatMessageFirestoreActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name=".UpdateAuthUserProfileActivity"
             android:exported="false">
             <meta-data

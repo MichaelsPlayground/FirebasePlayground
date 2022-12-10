@@ -221,7 +221,7 @@ public class MainActivity extends AppCompatActivity {
         listUserFirestore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.i(TAG, "list user on database");
+                Log.i(TAG, "list user on Firestore");
                 Intent intent = new Intent(MainActivity.this, ListUserFirestoreActivity.class);
                 startActivity(intent);
                 //finish();
@@ -232,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
         listUserFirestoreRv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.i(TAG, "list user on database with RecyclerView");
+                Log.i(TAG, "list user on Firestore with RecyclerView");
                 Intent intent = new Intent(MainActivity.this, ListUserFirestoreRecyclerViewActivity.class);
                 startActivity(intent);
                 //finish();
@@ -243,8 +243,25 @@ public class MainActivity extends AppCompatActivity {
         sendMessageFirestore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.i(TAG, "send a message to another user in Firestorw");
+                Log.i(TAG, "send a message to another user in Firestore");
                 Intent intent = new Intent(MainActivity.this, SendMessageFirestoreActivity.class);
+                startActivity(intent);
+                //finish();
+            }
+        });
+
+        Button chatMessageFirestore = findViewById(R.id.btnMainFirestoreChatMessage);
+        chatMessageFirestore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.i(TAG, "chat with another user in Firestore");
+                /* we are starting with select user, this activity will directly go to ChatMessageFirestoreActivity
+                Intent intent = new Intent(MainActivity.this, SendMessageFirestoreActivity.class);
+                startActivity(intent);
+                //finish();*/
+                // we are starting with select user, this activity will directly go to ChatMessageFirestoreActivity
+                Intent intent = new Intent(MainActivity.this, SelectUserFirestoreActivity.class);
+                intent.putExtra("CALLER_ACTIVITY", "CHAT_MESSAGE_FIRESTORE");
                 startActivity(intent);
                 //finish();
             }

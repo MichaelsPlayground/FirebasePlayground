@@ -1,0 +1,34 @@
+        // see https://stackoverflow.com/a/40797904/8166854
+        chatRvAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                super.onItemRangeInserted(positionStart, itemCount);
+                int friendlyMessageCount = chatRvAdapter.getItemCount();
+                int lastVisiblePosition =
+                        linearLayoutManager.findLastCompletelyVisibleItemPosition();
+                // If the recycler view is initially being loaded or the
+                // user is at the bottom of the list, scroll to the bottom
+                // of the list to show the newly added message.
+                /*
+                if (lastVisiblePosition == -1 ||
+                        (positionStart >= (friendlyMessageCount - 1) &&
+                                lastVisiblePosition == (positionStart - 1))) {
+                    chatList.scrollToPosition(positionStart);
+                }
+*/
+
+                /*
+                That will scroll if you add 1 new message. if you have 6 unread messages and you click
+                to read them, it will show first unread message and the rest 5 you will have to scroll
+                manually to view to the bottom.
+                Using if (lastVisiblePosition == -1 || positionStart >= (friendlyMessageCount - 1))
+                fixes this problem!
+                 */
+
+                if (lastVisiblePosition == -1 || positionStart >= (friendlyMessageCount - 1)) {
+                    chatList.scrollToPosition(positionStart);
+                }
+
+
+            }
+        });

@@ -15,4 +15,6 @@
     <color name="red_300">#FFB2B2</color>
     <color name="orange_300">#FFB74D</color>
     <color name="colorPrimaryDark">#505078</color>
+    <color name="material_gray_300">#E0E0E0</color>
+    <color name="material_green_300">#AED581</color>
 </resources>
