@@ -42,7 +42,7 @@ public class FirestoreDatabaseUserActivity extends AppCompatActivity {
     // get the data from auth
     private static String authUserId = "", authUserEmail, authDisplayName, authPhotoUrl;
 
-    private DatabaseReference mDatabase;
+    //private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
     FirebaseFirestore firestoreDatabase = FirebaseFirestore.getInstance();
     private static final String CHILD_USERS = "users";
@@ -73,7 +73,7 @@ public class FirestoreDatabaseUserActivity extends AppCompatActivity {
         // Initialize Firebase Database
         // https://fir-playground-1856e-default-rtdb.europe-west1.firebasedatabase.app/
         // if the database location is not us we need to use the reference:
-        mDatabase = FirebaseDatabase.getInstance("https://fir-playground-1856e-default-rtdb.europe-west1.firebasedatabase.app/").getReference();
+        //mDatabase = FirebaseDatabase.getInstance("https://fir-playground-1856e-default-rtdb.europe-west1.firebasedatabase.app/").getReference();
         // the following can be used if the database server location is us
         //mDatabase = FirebaseDatabase.getInstance().getReference();
 

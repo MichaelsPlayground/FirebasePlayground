@@ -14,16 +14,23 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Date;
 import java.util.Objects;
 
 import de.androidcrypto.firebaseplayground.models.MessageModel;
+import de.androidcrypto.firebaseplayground.models.UserFirestoreModel;
 
 public class SendMessageFirestoreActivity extends AppCompatActivity {
 
@@ -37,8 +44,11 @@ public class SendMessageFirestoreActivity extends AppCompatActivity {
     private static String authUserId = "", authUserEmail, authDisplayName, authPhotoUrl;
     private static String receiveUserId = "", receiveUserEmail = "", receiveUserDisplayName = "";
 
-    private DatabaseReference mDatabaseReference;
+    //private DatabaseReference mDatabaseReference;
     private FirebaseAuth mAuth;
+    FirebaseFirestore firestoreDatabase = FirebaseFirestore.getInstance();
+    private static final String CHILD_MESSAGES = "messages";
+    private static final String CHILD_MESSAGES_SUB = "mess";
     ProgressBar progressBar;
 
     @Override
@@ -59,12 +69,6 @@ public class SendMessageFirestoreActivity extends AppCompatActivity {
 
         // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
-        // Initialize Firebase Database
-        // https://fir-playground-1856e-default-rtdb.europe-west1.firebasedatabase.app/
-        // if the database location is not us we need to use the reference:
-        mDatabaseReference = FirebaseDatabase.getInstance("https://fir-playground-1856e-default-rtdb.europe-west1.firebasedatabase.app/").getReference();
-        // the following can be used if the database server location is us
-        //mDatabaseReference = FirebaseDatabase.getInstance().getReference();
 
         Intent intent = getIntent();
         receiveUserId = intent.getStringExtra("UID");
@@ -112,19 +116,6 @@ public class SendMessageFirestoreActivity extends AppCompatActivity {
             }
         });
 
-/*
-static data:
-authUser:
-Email: michael.telefon08@gmail.com
-UID: VgNGhMth85Y0Szg6FxLMcWkEpmA3
-Display Name: Michael Fehr
-
-receiveUser:
-Email: klaus.zwang.1934@gmail.com
-UID: 0QCS5u2UnxYURlbntvVTA6ZTbaO2
-Display Name: klaus.zwang.1934@gmail.com
- */
-
         edtMessageLayout.setEndIconOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -139,15 +130,6 @@ Display Name: klaus.zwang.1934@gmail.com
                 }
                 showProgressBar();
 
-                /*
-                // todo get the real uids, remove these lines
-                if (authUserId.equals("VgNGhMth85Y0Szg6FxLMcWkEpmA3")) {
-                    receiveUserId = "0QCS5u2UnxYURlbntvVTA6ZTbaO2";
-                } else {
-                    authUserId = "0QCS5u2UnxYURlbntvVTA6ZTbaO2";
-                    receiveUserId = "VgNGhMth85Y0Szg6FxLMcWkEpmA3";
-                }
-                */
                 // get the roomId by comparing 2 UID strings
                 String roomId = getRoomId(authUserId, receiveUserId);
                 String messageString = edtMessage.getText().toString();
@@ -155,53 +137,70 @@ Display Name: klaus.zwang.1934@gmail.com
                 Log.i(TAG, "message: " + messageString + " send to roomId: " + roomId);
                 // now we are going to send data to the database
                 long actualTime = new Date().getTime();
-                /*
-                retrieve the time string in GMT
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                String millisInString  = dateFormat.format(new Date());
-                 */
+
+                //retrieve the time string in GMT
+                //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                //String millisInString  = dateFormat.format(new Date());
+
                 MessageModel messageModel = new MessageModel(authUserId, messageString, actualTime, false);
-                mDatabaseReference.child("messages").child(roomId).push().setValue(messageModel);
-                // without push there is no new chatId key
-                // mDatabaseReference.child("messages").child(roomId).setValue(messageModel);
-                Toast.makeText(getApplicationContext(),
-                        "message written to database",
-                        Toast.LENGTH_SHORT).show();
+
+                // the message is nested in a structure like
+                // messages - roomId - "messages" - random id - single message
+                firestoreDatabase.collection(CHILD_MESSAGES)
+                        .document(roomId)
+                        .collection(CHILD_MESSAGES_SUB).add(messageModel)
+                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                            @Override
+                            public void onSuccess(DocumentReference documentReference) {
+                                Log.i(TAG, "DocumentSnapshot successfully written for roomId: " + roomId);
+                                Toast.makeText(getApplicationContext(),
+                                        "message written to database",
+                                        Toast.LENGTH_SHORT).show();
+                                hideProgressBar();
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.i(TAG, "Error writing document for roomId: " + roomId, e);
+                                Toast.makeText(getApplicationContext(),
+                                        "ERROR on writing message to database",
+                                        Toast.LENGTH_SHORT).show();
+                                hideProgressBar();
+                            }
+                        });
+
+/*
+                // the message is nested in a structure like
+                // messages - roomId - "messages" - timestamp - single message
+                DocumentReference messageRef = firestoreDatabase
+                        .collection(CHILD_MESSAGES).document(roomId)
+                        .collection(CHILD_MESSAGES).document(String.valueOf(actualTime));
+                messageRef.set(messageModel).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                Log.i(TAG, "DocumentSnapshot successfully written for roomId: " + roomId);
+                                Toast.makeText(getApplicationContext(),
+                                        "message written to database",
+                                        Toast.LENGTH_SHORT).show();
+                                hideProgressBar();
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.i(TAG, "Error writing document for roomId: " + roomId, e);
+                                Toast.makeText(getApplicationContext(),
+                                        "ERROR on writing message to database",
+                                        Toast.LENGTH_SHORT).show();
+                                hideProgressBar();
+                            }
+                        });
+*/
                 edtMessage.setText("");
                 hideProgressBar();
             }
         });
-
-        /*
-        Button send = findViewById(R.id.btnSendMessageFirestoreSend);
-        send.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.i(TAG, "old send method");
-                // todo get the real uids, remove the line
-                receiveUserId = "0QCS5u2UnxYURlbntvVTA6ZTbaO2";
-                // get the roomId by comparing 2 UID strings
-                String roomId = getRoomId(authUserId, receiveUserId);
-                String messageString = edtMessage.getText().toString();
-                edtRoomId.setText(roomId);
-                Log.i(TAG, "message: " + messageString);
-                Log.i(TAG, "roomId: " + roomId);
-                // now we are going to send data to the database
-                long actualTime = new Date().getTime();
-                //retrieve the time string in GMT
-                //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                //String millisInString  = dateFormat.format(new Date());
-                MessageModel messageModel = new MessageModel(authUserId, messageString, actualTime, false);
-                mDatabaseReference.child("messages").child(roomId).push().setValue(messageModel);
-                // without push there is no new chatId key
-                // mDatabaseReference.child("messages").child(roomId).setValue(messageModel);
-                Toast.makeText(getApplicationContext(),
-                        "message written to database",
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
-         */
-
 
     }
 
@@ -225,7 +224,7 @@ Display Name: klaus.zwang.1934@gmail.com
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser != null){
+        if (currentUser != null) {
             reload();
         } else {
             signedInUser.setText("no user is signed in");
