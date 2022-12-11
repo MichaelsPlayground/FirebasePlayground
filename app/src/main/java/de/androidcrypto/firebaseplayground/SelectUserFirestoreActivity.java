@@ -90,6 +90,7 @@ public class SelectUserFirestoreActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String callerActivity = intent.getStringExtra("CALLER_ACTIVITY");
         // the activity was called directly so it will return to MainActivity
+        if (TextUtils.isEmpty(callerActivity)) callerActivity = "MainActivity"; // default
         returnIntent = new Intent(SelectUserFirestoreActivity.this, MainActivity.class); // default
         if (TextUtils.isEmpty(callerActivity)) {
             Log.i(TAG, "The activity was called directly and will return to MainActivity");
