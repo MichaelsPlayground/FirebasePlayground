@@ -4,10 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ChatActivity">
+    android:id="@+id/chatFirestoreMessageLayout"
+    tools:context=".ChatMessageFirestoreActivity">
 
     <TextView
-        android:id="@+id/tvChatHeader"
+        android:id="@+id/tvChatFirestoreHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -17,26 +18,26 @@
         android:textAlignment="center"
         android:textSize="16sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/rvChat"
+        app:layout_constraintBottom_toTopOf="@+id/rvChatFirestore"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvChat"
+        android:id="@+id/rvChatFirestore"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/etChatMessageLayout"
+        app:layout_constraintBottom_toTopOf="@+id/etChatFirestoreMessageLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvChatHeader"
+        app:layout_constraintTop_toBottomOf="@id/tvChatFirestoreHeader"
         tools:listitem="@layout/firestore_chat_old" />
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/etChatMessageLayout"
+        android:id="@+id/etChatFirestoreMessageLayout"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -59,7 +60,7 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etChatMessage"
+            android:id="@+id/etChatFirestoreMessage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"

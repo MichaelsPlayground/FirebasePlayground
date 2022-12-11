@@ -1,26 +1,24 @@
 package de.androidcrypto.firebaseplayground;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Layout;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -29,6 +27,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import de.androidcrypto.firebaseplayground.models.MessageModel;
@@ -53,15 +52,6 @@ public class ChatMessageFirestoreActivity extends AppCompatActivity {
     FirebaseFirestore firestoreDatabase = FirebaseFirestore.getInstance();
     private static final String CHILD_MESSAGES = "messages";
     private static final String CHILD_MESSAGES_SUB = "mess";
-
-    // creating variables for our recycler view,
-    // array list, adapter, firebase firestore
-    // and our progress bar.
-    //private RecyclerView courseRV;
-
-
-    ProgressBar loadingPB;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,23 +109,6 @@ public class ChatMessageFirestoreActivity extends AppCompatActivity {
         // setting adapter to our recycler view.
         chatList.setAdapter(chatRvAdapter);
 
-        //linearLayoutManager.smoothScrollToPosition(chatList, null, chatRvAdapter.getItemCount() - 1);
-
-        // below line is use to get the data from Firebase Firestore.
-        // previously we were saving data on a reference of Courses
-        // now we will be getting the data from the same reference.
-        // the message is nested in a structure like
-        // messages - roomId - "messages" - random id - single message
-
-        /*
-        // unsorted list
-        firestoreDatabase.collection(CHILD_MESSAGES)
-                .document(roomId)
-                .collection(CHILD_MESSAGES_SUB).get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-         */
-
-
         CollectionReference collectionReference = firestoreDatabase
                 .collection(CHILD_MESSAGES)
                 .document(roomId)
@@ -189,6 +162,7 @@ public class ChatMessageFirestoreActivity extends AppCompatActivity {
                 });
 */
 
+        // this is a realtime listener
         query.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot snapshot, @Nullable FirebaseFirestoreException error) {
@@ -228,26 +202,68 @@ public class ChatMessageFirestoreActivity extends AppCompatActivity {
             }
         });
 
-
-/*
-        Query query = FirebaseFirestore.getInstance()
-                .collection(CHILD_MESSAGES).orderBy("timestamp", Query.Direction.ASCENDING);
-
-        FirestoreRecyclerOptions<MessageModel> options = new FirestoreRecyclerOptions.Builder<Chat>().setQuery(query, Chat.class).build();
-        chatadapter = new ChatAdapter(options);
-        chatadapter.registerAdapterDataObserver(    new RecyclerView.AdapterDataObserver() {
+        edtMessageLayout.setEndIconOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemRangeInserted(int positionStart, int itemCount) {
-                recyclerView.scrollToPosition(chatadapter.getItemCount() - 1);
+            public void onClick(View view) {
+                Log.i(TAG, "send message");
+                String messageString = edtMessage.getText().toString();
+                // check for selected receipient
+                if (TextUtils.isEmpty(receiveUserId)) {
+                    Log.i(TAG, "no receipient selected, abort");
+                    Toast.makeText(getApplicationContext(),
+                            "please select a receipient first",
+                            Toast.LENGTH_LONG).show();
+                    return;
+                }
+                // check that message is not empty
+                if (TextUtils.isEmpty(messageString)) {
+                    Log.i(TAG, "message is emptyd, abort");
+                    Toast.makeText(getApplicationContext(),
+                            "please enter a message",
+                            Toast.LENGTH_LONG).show();
+                    return;
+                }
+                //showProgressBar();
+
+                // get the roomId by comparing 2 UID strings
+                String roomId = getRoomId(authUserId, receiveUserId);
+                Log.i(TAG, "message: " + messageString + " send to roomId: " + roomId);
+                // now we are going to send data to the database
+                long actualTime = new Date().getTime();
+                MessageModel messageModel = new MessageModel(authUserId, messageString, actualTime, false);
+
+                // the message is nested in a structure like
+                // messages - roomId - "messages" - random id - single message
+                firestoreDatabase.collection(CHILD_MESSAGES)
+                        .document(roomId)
+                        .collection(CHILD_MESSAGES_SUB).add(messageModel)
+                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                            @Override
+                            public void onSuccess(DocumentReference documentReference) {
+                                Log.i(TAG, "DocumentSnapshot successfully written for roomId: " + roomId);
+                                Toast.makeText(getApplicationContext(),
+                                        "message written to database",
+                                        Toast.LENGTH_SHORT).show();
+                                //hideProgressBar();
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.i(TAG, "Error writing document for roomId: " + roomId, e);
+                                Toast.makeText(getApplicationContext(),
+                                        "ERROR on writing message to database",
+                                        Toast.LENGTH_SHORT).show();
+                                //hideProgressBar();
+                            }
+                        });
+
+                edtMessage.setText("");
+                //hideProgressBar();
             }
         });
-        recyclerView.setAdapter(chatadapter);
 
- */
     }
-
-
-
 
     /**
      * service methods
