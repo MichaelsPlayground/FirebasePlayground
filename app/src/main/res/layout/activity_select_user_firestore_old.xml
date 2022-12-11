@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/grey_300"
     android:orientation="vertical"
-    tools:context=".SelectUserFirestoreActivity">
+    tools:context=".SelectUserFirestoreOldActivity">
 
     <TextView
         android:layout_width="match_parent"
@@ -74,6 +74,15 @@
         android:clickable="true"
         android:text="list online user only"
         android:textSize="18sp" />
+
+    <Button
+        android:id="@+id/btnSelectUserFirestoreRun"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:text="list user" />
 
     <Button
         android:id="@+id/btnFirestoreUserToMain"

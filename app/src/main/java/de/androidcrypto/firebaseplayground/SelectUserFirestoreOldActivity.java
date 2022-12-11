@@ -14,7 +14,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -22,11 +21,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -39,7 +33,7 @@ import java.util.Objects;
 
 import de.androidcrypto.firebaseplayground.models.UserFirestoreModel;
 
-public class SelectUserFirestoreActivity extends AppCompatActivity {
+public class SelectUserFirestoreOldActivity extends AppCompatActivity {
 
     /**
      * This class is similar to ListUserDatabase but it checks for an incoming intent to
@@ -73,7 +67,7 @@ public class SelectUserFirestoreActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_select_user_firestore);
+        setContentView(R.layout.activity_select_user_firestore_old);
 
         signedInUser = findViewById(R.id.etFirestoreUserSignedInUser);
         listOnlineUserOnly = findViewById(R.id.swFirestoreSelectUserListOnlineOnly);
@@ -90,22 +84,26 @@ public class SelectUserFirestoreActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String callerActivity = intent.getStringExtra("CALLER_ACTIVITY");
         // the activity was called directly so it will return to MainActivity
-        returnIntent = new Intent(SelectUserFirestoreActivity.this, MainActivity.class); // default
+        returnIntent = new Intent(SelectUserFirestoreOldActivity.this, MainActivity.class); // default
         if (TextUtils.isEmpty(callerActivity)) {
             Log.i(TAG, "The activity was called directly and will return to MainActivity");
         }
         if (callerActivity.equals("SEND_MESSAGE_FIRESTORE")) {
             Log.i(TAG, "The activity was called from SendMessageFirestore and will return to the caller activity");
-            returnIntent = new Intent(SelectUserFirestoreActivity.this, SendMessageFirestoreActivity.class);
+            returnIntent = new Intent(SelectUserFirestoreOldActivity.this, SendMessageFirestoreActivity.class);
         }
         if (callerActivity.equals("LIST_MESSAGE_FIRESTORE")) {
             Log.i(TAG, "The activity was called from ListMessagesFirestore and will return to the caller activity");
-            returnIntent = new Intent(SelectUserFirestoreActivity.this, ListMessagesFirestoreActivity.class);
+            returnIntent = new Intent(SelectUserFirestoreOldActivity.this, ListMessagesFirestoreActivity.class);
         }
         if (callerActivity.equals("CHAT_MESSAGE_FIRESTORE")) {
             Log.i(TAG, "The activity was called from MainActivity and will return to  ChatMessagesFirestore activity");
-            returnIntent = new Intent(SelectUserFirestoreActivity.this, ChatMessageFirestoreActivity.class);
+            returnIntent = new Intent(SelectUserFirestoreOldActivity.this, ChatMessageFirestoreActivity.class);
         }
+
+        // Initialize Firebase Auth
+        mAuth = FirebaseAuth.getInstance();
+
 
         // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
@@ -133,11 +131,109 @@ public class SelectUserFirestoreActivity extends AppCompatActivity {
 
         listUserOnFirestore();
 
+        // todo switch onChangeListener to select for onlyUserOnly
+        // remove the disabling then
+        //listOnlineUserOnly.setEnabled(false);
+
+        Button listUser = findViewById(R.id.btnSelectUserFirestoreRun);
+        listUser.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                /*
+                Log.i(TAG, "list user on firestore database run");
+                showProgressBar();
+
+                List<String> arrayList = new ArrayList<>();
+                List<String> uidList = new ArrayList<>();
+                List<String> emailList = new ArrayList<>();
+                List<String> displayNameList = new ArrayList<>();
+
+                if (listOnlineUserOnly.isChecked()) {
+                    // list online user only
+                    CollectionReference onlineUserReference = firestoreDatabase.collection(CHILD_USERS);
+                    Query query = onlineUserReference.whereEqualTo("userOnline", true);
+                    query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            Log.i(TAG, "listUser on firestore complete");
+                            if (task.isSuccessful()) {
+                                Log.i(TAG, "listUser on firestore complete and successful");
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    UserFirestoreModel userFirestoreModel = document.toObject(UserFirestoreModel.class);
+                                    final String displayName;
+                                    if (TextUtils.isEmpty(userFirestoreModel.getUserName())) {
+                                        displayName = "";
+                                    } else {
+                                        displayName = userFirestoreModel.getUserName();
+                                    }
+                                    arrayList.add(userFirestoreModel.getUserMail() + " " + displayName);
+                                    uidList.add(document.getId());
+                                    emailList.add(userFirestoreModel.getUserMail());
+                                    displayNameList.add(displayName);
+                                }
+                                ListView usersListView = (ListView) findViewById(R.id.lvListUserFirestore);
+                                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(SelectUserFirestoreActivity.this, android.R.layout.simple_list_item_1, arrayList);
+                                usersListView.setAdapter(arrayAdapter);
+                            } else {
+                                Log.d(TAG, "Error getting documents: ", task.getException());
+                            }
+                        }
+                    });
+                } else {
+                    // list all user regardles online status
+                    firestoreDatabase.collection(CHILD_USERS).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            Log.i(TAG, "select user on firestore complete");
+                            if (task.isSuccessful()) {
+                                Log.i(TAG, "listUser on firestore complete and successful");
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    UserFirestoreModel userFirestoreModel = document.toObject(UserFirestoreModel.class);
+                                    final String displayName;
+                                    if (TextUtils.isEmpty(userFirestoreModel.getUserName())) {
+                                        displayName = "";
+                                    } else {
+                                        displayName = userFirestoreModel.getUserName();
+                                    }
+                                    arrayList.add(userFirestoreModel.getUserMail() + " " + displayName);
+                                    uidList.add(document.getId());
+                                    emailList.add(userFirestoreModel.getUserMail());
+                                    displayNameList.add(displayName);
+                                }
+                                ListView usersListView = (ListView) findViewById(R.id.lvSelectUserFirestore);
+                                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(SelectUserFirestoreActivity.this, android.R.layout.simple_list_item_1, arrayList);
+                                usersListView.setAdapter(arrayAdapter);
+                            } else {
+                                Log.d(TAG, "Error getting documents: ", task.getException());
+                            }
+                        }
+                    });
+                }
+                hideProgressBar();
+*/
+                /*
+                userListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                        String uidSelected = uidList.get(position);
+                        String emailSelected = emailList.get(position);
+                        String displayNameSelected = displayNameList.get(position);
+                        returnIntent.putExtra("UID", uidSelected);
+                        returnIntent.putExtra("EMAIL", emailSelected);
+                        returnIntent.putExtra("DISPLAYNAME", displayNameSelected);
+                        startActivity(returnIntent);
+                        finish();
+                    }
+                });*/
+            }
+        });
+
         Button backToMain = findViewById(R.id.btnFirestoreUserToMain);
+
         backToMain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(SelectUserFirestoreActivity.this, MainActivity.class);
+                Intent intent = new Intent(SelectUserFirestoreOldActivity.this, MainActivity.class);
                 startActivity(intent);
                 finish();
             }
@@ -177,7 +273,7 @@ public class SelectUserFirestoreActivity extends AppCompatActivity {
                             displayNameList.add(displayName);
                         }
                         ListView usersListView = (ListView) findViewById(R.id.lvSelectUserFirestore);
-                        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(SelectUserFirestoreActivity.this, android.R.layout.simple_list_item_1, arrayList);
+                        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(SelectUserFirestoreOldActivity.this, android.R.layout.simple_list_item_1, arrayList);
                         usersListView.setAdapter(arrayAdapter);
                     } else {
                         Log.d(TAG, "Error getting documents: ", task.getException());
@@ -206,7 +302,7 @@ public class SelectUserFirestoreActivity extends AppCompatActivity {
                             displayNameList.add(displayName);
                         }
                         ListView usersListView = (ListView) findViewById(R.id.lvSelectUserFirestore);
-                        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(SelectUserFirestoreActivity.this, android.R.layout.simple_list_item_1, arrayList);
+                        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(SelectUserFirestoreOldActivity.this, android.R.layout.simple_list_item_1, arrayList);
                         usersListView.setAdapter(arrayAdapter);
                     } else {
                         Log.d(TAG, "Error getting documents: ", task.getException());

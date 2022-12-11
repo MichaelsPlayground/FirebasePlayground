@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
 
         // todo enable buttons when a user is signed in
-
+        // todo if app goes away from foreground or resume setUser
         // todo use Async Methods for sending notifications (Google)
         // the error happens while doing network operations on MainThread
         // solution: https://stackoverflow.com/questions/25093546/android-os-networkonmainthreadexception-at-android-os-strictmodeandroidblockgua
