@@ -21,6 +21,8 @@ public class GenerateTestMessagesDatabaseRecyclerViewAdapter extends RecyclerVie
         mItemList = itemList;
     }
 
+    // todo fill this with live data from FirebaseDatabase
+
     // Based on the View type we are instantiating the
     // ViewHolder in the onCreateViewHolder() method
     @NonNull
