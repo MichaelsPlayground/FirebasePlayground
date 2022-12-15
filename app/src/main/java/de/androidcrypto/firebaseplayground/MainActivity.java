@@ -202,6 +202,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button databaseGenerateTestMessages = findViewById(R.id.btnMainDatabaseGenerateTestMessages);
+        databaseGenerateTestMessages.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "generate test messages in database");
+                Intent intent = new Intent(MainActivity.this, GenerateTestMessagesDatabaseActivity.class);
+                startActivity(intent);
+                //finish();
+            }
+        });
+
         /**
          * firestore database section
          */
@@ -266,6 +277,8 @@ public class MainActivity extends AppCompatActivity {
                 //finish();
             }
         });
+
+
 
         /**
          * storage section
