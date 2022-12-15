@@ -213,6 +213,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button endlessRecyclerView = findViewById(R.id.btnMainEndlessRecyclerView);
+        endlessRecyclerView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "endless RecyclerView");
+                Intent intent = new Intent(MainActivity.this, EndlessRecyclerViewActivity.class);
+                startActivity(intent);
+                //finish();
+            }
+        });
+
         /**
          * firestore database section
          */
