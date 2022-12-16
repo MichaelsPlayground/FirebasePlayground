@@ -19,16 +19,15 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 
 import de.androidcrypto.firebaseplayground.models.MessageModel;
 import de.androidcrypto.firebaseplayground.models.UserModel;
 
-public class GenerateTestMessagesDatabaseActivity extends AppCompatActivity implements FirebaseAuth.AuthStateListener {
+public class GenerateTestMessagesDatabaseActivityOld extends AppCompatActivity implements FirebaseAuth.AuthStateListener {
 
     // implement from https://www.geeksforgeeks.org/endless-recyclerview-in-android/
     // (Kotlin) https://proandroiddev.com/firestore-pagination-with-realtime-updates-android-323d336a6772
@@ -40,7 +39,7 @@ public class GenerateTestMessagesDatabaseActivity extends AppCompatActivity impl
     TextView header;
     com.google.android.material.textfield.TextInputEditText edtMessage;
     com.google.android.material.textfield.TextInputLayout edtMessageLayout;
-    RecyclerView messageRecyclerView;
+    RecyclerView messagesList;
 
     private static String authUserId = "", authUserEmail = "", authDisplayName = "";
     private static String receiveUserId = "", receiveUserEmail = "", receiveUserDisplayName = "";
@@ -48,12 +47,8 @@ public class GenerateTestMessagesDatabaseActivity extends AppCompatActivity impl
 
     private DatabaseReference mDatabaseReference;
     private DatabaseReference messagesDatabase;
-    private DatabaseReference roomIdDatabase;
     private FirebaseAuth mFirebaseAuth;
     //FirebaseRecyclerAdapter firebaseRecyclerAdapter;
-
-    private final List<MessageModel> messagesList=new ArrayList<>();
-    private LinearLayoutManager linearLayoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,9 +58,10 @@ public class GenerateTestMessagesDatabaseActivity extends AppCompatActivity impl
         header = findViewById(R.id.tvGenerateTestMessagesDatabaseHeader);
         edtMessageLayout = findViewById(R.id.etGenerateTestMessagesDatabaseMessageLayout);
         edtMessage = findViewById(R.id.etGenerateTestMessagesDatabaseMessage);
-        messageRecyclerView = findViewById(R.id.rvGenerateTestMessagesDatabase);
+        messagesList = findViewById(R.id.rvGenerateTestMessagesDatabase);
 
-
+        messagesList.setHasFixedSize(true);
+        messagesList.setLayoutManager(new LinearLayoutManager(this));
 
         // start with a disabled ui
         enableUiOnSignIn(false);
@@ -169,12 +165,12 @@ public class GenerateTestMessagesDatabaseActivity extends AppCompatActivity impl
         FirebaseUser currentUser = mFirebaseAuth.getCurrentUser();
         if(currentUser != null){
 
-            receiveUserId = "zzzzz"; // for test purposes
+            receiveUserId = "b"; // for test purposes
             if (!receiveUserId.equals("")) {
                 Log.i(TAG, "onStart prepare database for chat");
                 reload();
                 enableUiOnSignIn(true);
-                setDatabaseForRoomId(currentUser.getUid(), receiveUserId);
+                setDatabaseForRoom(currentUser.getUid(), receiveUserId);
 
                 //attachRecyclerViewAdapter();
             } else {
@@ -192,17 +188,6 @@ public class GenerateTestMessagesDatabaseActivity extends AppCompatActivity impl
         FirebaseAuth.getInstance().addAuthStateListener(this);
     }
 
-    private void setDatabaseForRoomId(String ownUid, String receiveUserId) {
-        Log.i(TAG, "setDatabaseForRoomId");
-        roomId = getRoomId(ownUid, receiveUserId);
-        Log.i(TAG, "room Id is " + roomId);
-        roomIdDatabase = messagesDatabase.child(roomId);
-
-
-
-    }
-
-
     @Override
     protected void onStop() {
         super.onStop();
@@ -219,6 +204,28 @@ public class GenerateTestMessagesDatabaseActivity extends AppCompatActivity impl
             //auth.signInAnonymously().addOnCompleteListener(new SignInResultNotifier(this));
         }
     }
+
+    /*
+    private void attachRecyclerViewAdapter() {
+        final RecyclerView.Adapter adapter = firebaseRecyclerAdapter;
+        if (adapter != null) {
+            Log.i(TAG, "attachRecyclerViewAdapter");
+            // Scroll to bottom on new messages
+            adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+                @Override
+                public void onItemRangeInserted(int positionStart, int itemCount) {
+                    //mBinding.messagesList.smoothScrollToPosition(adapter.getItemCount());
+                    messagesList.smoothScrollToPosition(adapter.getItemCount());
+                }
+            });
+
+            //mBinding.messagesList.setAdapter(adapter);
+            messagesList.setAdapter(adapter);
+        } else {
+            Log.i(TAG, "attachRecyclerViewAdapter NOT set, firebaseRecyclerAdapter is null");
+        }
+    }
+     */
 
     private boolean isSignedIn() {
         return FirebaseAuth.getInstance().getCurrentUser() != null;
@@ -254,6 +261,57 @@ public class GenerateTestMessagesDatabaseActivity extends AppCompatActivity impl
                     Toast.LENGTH_SHORT).show();
             //hideProgressBar();
         }
+    }
+
+    // generates the room id and prepares for the querry
+    private void setDatabaseForRoom(String ownUid, String receiverUid) {
+        // get the roomId by comparing 2 UID strings
+        roomId = getRoomId(ownUid, "zzzzz");
+        /*
+        String conversationString = "chat between " + ownUid + " (" + authDisplayName + ")"
+                + " and " + receiveUserId + " (" + receiveUserDisplayName + ")"
+                + " in room " + roomId;
+         */
+        String  conversationString = "chat with " + receiveUserDisplayName;
+        header.setText(conversationString);
+        Log.i(TAG, conversationString);
+
+        // get the last 50 messages from database
+        // On the main screen of your app, you may want to show the 50 most recent chat messages.
+        // With Firebase you would use the following query:
+        Query query = messagesDatabase
+                .child(roomId);
+        //.limitToLast(10); // show the last 10 messages
+        //.limitToLast(50); // show the last 50 messages
+        // The FirebaseRecyclerAdapter binds a Query to a RecyclerView. When data is added, removed,
+        // or changed these updates are automatically applied to your UI in real time.
+        // First, configure the adapter by building FirebaseRecyclerOptions. In this case we will
+        // continue with our chat example:
+
+        /*
+
+        FirebaseRecyclerOptions<MessageModel> options =
+                new FirebaseRecyclerOptions.Builder<MessageModel>()
+                        .setQuery(query, MessageModel.class)
+                        .build();
+        // Next create the FirebaseRecyclerAdapter object. You should already have a ViewHolder subclass
+        // for displaying each item. In this case we will use a custom ChatHolder class:
+        firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<MessageModel, MessageHolder>(options) {
+            @Override
+            public MessageHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                // Create a new instance of the ViewHolder, in this case we are using a custom
+                // layout called R.layout.message for each item
+                View view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.message, parent, false);
+                return new MessageHolder(view);
+            }
+
+            @Override
+            protected void onBindViewHolder(MessageHolder holder, int position, MessageModel model) {
+                // Bind the Chat object to the ChatHolder
+                holder.bind(model);
+            }
+        };*/
     }
 
     private void reload() {

@@ -213,6 +213,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        /*
         Button endlessRecyclerView = findViewById(R.id.btnMainEndlessRecyclerView);
         endlessRecyclerView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -223,6 +224,8 @@ public class MainActivity extends AppCompatActivity {
                 //finish();
             }
         });
+
+         */
 
         /**
          * firestore database section
