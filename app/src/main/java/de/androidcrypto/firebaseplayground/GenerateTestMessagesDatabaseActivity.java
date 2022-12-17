@@ -129,13 +129,14 @@ public class GenerateTestMessagesDatabaseActivity extends AppCompatActivity impl
                 //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 //String millisInString  = dateFormat.format(new Date());
                 //for (int i = 0; i < 25; i++) {
-                for (int i = 0; i < 3; i++) {
+                for (int i = 0; i < 2; i++) {
 
                     long actualTime = new Date().getTime();
                     // MessageModel(String senderId, String message, long messageTime, boolean messageEncrypted) {
                     Message2Model messageModel = new Message2Model( authUserId, messageString + " " + String.valueOf(i), actualTime, String.valueOf(actualTime), false);
                     messagesDatabase.child(roomId).push().setValue(messageModel);
                     System.out.println("i: " + i + " model: " + messageModel.toMap().toString());
+                    actualTime = new Date().getTime();
                     messageModel = new Message2Model( "b", "Re: " + messageString + " " + String.valueOf(i), actualTime, String.valueOf(actualTime), false);
                     messagesDatabase.child(roomId).push().setValue(messageModel);
                 }
