@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
+import de.androidcrypto.firebaseplayground.models.Message2Model;
 import de.androidcrypto.firebaseplayground.models.MessageModel;
 import de.androidcrypto.firebaseplayground.models.UserModel;
 
@@ -64,8 +65,6 @@ public class GenerateTestMessagesDatabaseActivity extends AppCompatActivity impl
         edtMessageLayout = findViewById(R.id.etGenerateTestMessagesDatabaseMessageLayout);
         edtMessage = findViewById(R.id.etGenerateTestMessagesDatabaseMessage);
         messageRecyclerView = findViewById(R.id.rvGenerateTestMessagesDatabase);
-
-
 
         // start with a disabled ui
         enableUiOnSignIn(false);
@@ -113,7 +112,8 @@ public class GenerateTestMessagesDatabaseActivity extends AppCompatActivity impl
 
         // Create a instance of the database and get its reference
         mDatabaseReference = FirebaseDatabase.getInstance("https://fir-playground-1856e-default-rtdb.europe-west1.firebasedatabase.app").getReference();
-        messagesDatabase = mDatabaseReference.child("messages");
+        //messagesDatabase = mDatabaseReference.child("messages");
+        messagesDatabase = mDatabaseReference.child("messages2");
         messagesDatabase.keepSynced(true);
 
         edtMessageLayout.setEndIconOnClickListener(new View.OnClickListener() {
@@ -128,13 +128,15 @@ public class GenerateTestMessagesDatabaseActivity extends AppCompatActivity impl
                 // retrieve the time string in GMT
                 //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 //String millisInString  = dateFormat.format(new Date());
-                for (int i = 0; i < 25; i++) {
+                //for (int i = 0; i < 25; i++) {
+                for (int i = 0; i < 3; i++) {
+
                     long actualTime = new Date().getTime();
                     // MessageModel(String senderId, String message, long messageTime, boolean messageEncrypted) {
-                    MessageModel messageModel = new MessageModel( authUserId, messageString + " " + String.valueOf(i), actualTime, false);
+                    Message2Model messageModel = new Message2Model( authUserId, messageString + " " + String.valueOf(i), actualTime, String.valueOf(actualTime), false);
                     messagesDatabase.child(roomId).push().setValue(messageModel);
                     System.out.println("i: " + i + " model: " + messageModel.toMap().toString());
-                    messageModel = new MessageModel( "b", "Re: " + messageString + " " + String.valueOf(i), actualTime, false);
+                    messageModel = new Message2Model( "b", "Re: " + messageString + " " + String.valueOf(i), actualTime, String.valueOf(actualTime), false);
                     messagesDatabase.child(roomId).push().setValue(messageModel);
                 }
                 // without push there is no new chatId key
