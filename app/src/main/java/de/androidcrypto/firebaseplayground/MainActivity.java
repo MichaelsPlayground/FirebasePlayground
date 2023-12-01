@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -55,6 +56,9 @@ public class MainActivity extends AppCompatActivity {
         // solution: https://stackoverflow.com/questions/25093546/android-os-networkonmainthreadexception-at-android-os-strictmodeandroidblockgua
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
+
+        // hide soft keyboard from showing up on startup
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         /**
          * authentication sign-in/out section
@@ -226,6 +230,23 @@ public class MainActivity extends AppCompatActivity {
         });
 
          */
+
+        Button chatMessageDatabase = findViewById(R.id.btnMainDatabaseChatMessage);
+        chatMessageDatabase.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.i(TAG, "chat with another user in Database");
+                /* we are starting with select user, this activity will directly go to ChatMessageFirestoreActivity
+                Intent intent = new Intent(MainActivity.this, SendMessageFirestoreActivity.class);
+                startActivity(intent);
+                //finish();*/
+                // we are starting with select user, this activity will directly go to ChatMessageFirestoreActivity
+                Intent intent = new Intent(MainActivity.this, SelectUserDatabaseActivity.class);
+                intent.putExtra("CALLER_ACTIVITY", "CHAT_MESSAGE_DATABASE");
+                startActivity(intent);
+                //finish();
+            }
+        });
 
         /**
          * firestore database section

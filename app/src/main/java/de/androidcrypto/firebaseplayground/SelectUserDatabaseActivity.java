@@ -89,6 +89,10 @@ public class SelectUserDatabaseActivity extends AppCompatActivity {
             Log.i(TAG, "The activity was called from ListMessagesDatabase and will return to the caller activity");
             returnIntent = new Intent(SelectUserDatabaseActivity.this, ListMessagesDatabaseActivity.class);
         }
+        if (callerActivity.equals("CHAT_MESSAGE_DATABASE")) {
+            Log.i(TAG, "The activity was called from MainActivity and will return to  ChatMessagesDatabase activity");
+            returnIntent = new Intent(SelectUserDatabaseActivity.this, ChatMessageDatabaseActivity.class);
+        }
 
         // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();

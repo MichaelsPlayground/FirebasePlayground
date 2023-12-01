@@ -25,6 +25,13 @@
                 android:value="" />
         </activity>
         <activity
+            android:name=".ChatMessageDatabaseActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name=".UpdateAuthUserProfileActivity"
             android:exported="false">
             <meta-data

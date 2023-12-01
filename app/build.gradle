@@ -34,12 +34,12 @@ android {
 
 dependencies {
 
-    implementation 'androidx.appcompat:appcompat:1.5.1'
-    implementation 'com.google.android.material:material:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.9.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.4'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     // Import the Firebase BoM
     implementation platform('com.google.firebase:firebase-bom:31.0.3')
     // When using the BoM, you don't specify versions in Firebase library dependencies
@@ -49,7 +49,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth'
     // auth with Google account
     // Also add the dependency for the Google Play services library and specify its version
-    implementation 'com.google.android.gms:play-services-auth:20.3.0'
+    implementation 'com.google.android.gms:play-services-auth:20.7.0'
     // Add the dependency for the Realtime Database library
     // When using the BoM, you don't specify versions in Firebase library dependencies
     implementation 'com.google.firebase:firebase-database'
@@ -58,15 +58,15 @@ dependencies {
     // notifications between devices
     implementation 'com.google.firebase:firebase-messaging'
     // keys for messaging
-    implementation 'com.google.auth:google-auth-library-oauth2-http:1.7.0'
-    implementation 'com.google.code.gson:gson:2.9.0'
+    implementation 'com.google.auth:google-auth-library-oauth2-http:1.19.0'
+    implementation 'com.google.code.gson:gson:2.10'
     // Add the dependency for the Cloud Storage library
     // When using the BoM, you don't specify versions in Firebase library dependencies
     implementation 'com.google.firebase:firebase-storage'
 
     // to show images from Firebase storage
-    implementation 'com.github.bumptech.glide:glide:4.14.2'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
+    implementation 'com.github.bumptech.glide:glide:4.16.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
     // show user profile image in a circle
     implementation 'com.mikhaellopez:circularimageview:4.2.0'
     // crop the user profile image
